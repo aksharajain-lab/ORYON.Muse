@@ -1,0 +1,13 @@
+{
+  "name": "ORYON Muse",
+  "short_name": "Muse",
+  "description": "Your premium AI aesthetic companion.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6efe6",
+  "theme_color": "#f6efe6",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }
+  ]
+}
