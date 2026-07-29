@@ -5,23 +5,30 @@ import { ThemeToggle } from "./ThemeToggle";
 export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
-      <div className="pointer-events-none fixed inset-0 bg-aurora opacity-80" />
-      <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(circle_at_1px_1px,color-mix(in_oklab,var(--foreground)_10%,transparent)_1px,transparent_0)] [background-size:32px_32px] opacity-[0.06]" />
+      {/* Subtle paper-like texture */}
+      <div className="pointer-events-none fixed inset-0"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E")`,
+          backgroundSize: "120px 120px",
+        }}
+      />
+      {/* Fine dot pattern */}
+      <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(circle_at_1px_1px,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_0)] [background-size:48px_48px] opacity-[0.035]" />
       <header className="relative z-20">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-6 sm:pt-8">
-          <Link to="/" className="group flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full glass shadow-soft">
-              <span className="text-serif text-lg leading-none text-foreground">O</span>
+          <Link to="/" className="group flex items-center gap-2.5 transition hover:opacity-80">
+            <span className="grid h-8 w-8 place-items-center rounded-full glass shadow-soft">
+              <span className="text-serif text-base leading-none text-foreground">O</span>
             </span>
-            <span className="text-serif text-lg tracking-[0.2em] text-foreground/90">
-              ORYON <span className="italic text-foreground/60">Muse</span>
+            <span className="text-serif text-base tracking-[0.22em] text-foreground/85">
+              ORYON <span className="italic text-foreground/50">Muse</span>
             </span>
           </Link>
           <ThemeToggle />
         </div>
       </header>
       <main className="relative z-10">{children}</main>
-      <footer className="relative z-10 mx-auto max-w-5xl px-5 py-10 text-center text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+      <footer className="relative z-10 mx-auto max-w-5xl px-5 py-8 text-center text-[9px] uppercase tracking-[0.4em] text-muted-foreground">
         ORYON Muse — an aesthetic companion
       </footer>
     </div>

@@ -33,9 +33,9 @@ export function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label="Toggle aesthetic theme"
-      className="glass group relative inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs uppercase tracking-[0.2em] text-foreground/80 shadow-soft transition hover:text-foreground"
+      className="inline-flex h-9 items-center gap-2 rounded-full border border-border/30 px-3.5 text-[10px] uppercase tracking-[0.25em] text-foreground/60 transition hover:border-foreground/30 hover:text-foreground"
     >
-      {isDark ? <Moon className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+      {isDark ? <Moon className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
       <span className="hidden sm:inline">{isDark ? "Dark Academia" : "Soft Muse"}</span>
     </button>
   );

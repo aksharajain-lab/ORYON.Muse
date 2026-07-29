@@ -39,16 +39,16 @@ function BeginPage() {
 
   return (
     <Shell>
-      <section className="mx-auto max-w-3xl px-5 pb-32 pt-10 sm:pt-16">
-        <p className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">Step 01 · Study</p>
+      <section className="mx-auto max-w-3xl px-5 pb-32 pt-8 sm:pt-14">
+        <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">Step 01 · Study</p>
         <h1 className="mt-3 text-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
           What would you like me to <em className="italic font-light">understand?</em>
         </h1>
-        <p className="mt-4 max-w-xl text-muted-foreground">
+        <p className="mt-4 max-w-xl text-sm text-muted-foreground">
           Choose one or more parts of your visual world.
         </p>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        <div className="mt-8 grid gap-2.5 sm:grid-cols-2">
           {CATEGORIES.map((c) => {
             const Icon = c.icon;
             const active = selected.includes(c.id);
@@ -57,27 +57,31 @@ function BeginPage() {
                 key={c.id}
                 onClick={() => toggle(c.id)}
                 aria-pressed={active}
-                className={`glass group relative overflow-hidden rounded-2xl p-5 text-left shadow-soft transition ${
-                  active ? "ring-2 ring-primary/60 -translate-y-0.5 shadow-luxe" : "hover:-translate-y-0.5"
+                className={`group relative rounded-xl border p-4 text-left transition ${
+                  active
+                    ? "border-foreground/30 bg-foreground/[0.03] -translate-y-0.5"
+                    : "border-border/40 hover:border-foreground/20 hover:-translate-y-0.5"
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className="grid h-10 w-10 place-items-center rounded-full glass shadow-soft">
-                    <Icon className="h-4 w-4 text-foreground/80" />
+                  <span className={`grid h-9 w-9 place-items-center rounded-full border text-foreground/60 ${
+                    active ? "border-foreground/30 bg-foreground/5" : "border-border/40"
+                  }`}>
+                    <Icon className="h-4 w-4" />
                   </span>
                   <span
-                    className={`grid h-6 w-6 place-items-center rounded-full border text-[10px] transition ${
+                    className={`grid h-5 w-5 place-items-center rounded-full border text-[9px] transition ${
                       active
                         ? "border-transparent bg-foreground text-background"
-                        : "border-border/70 bg-transparent text-transparent"
+                        : "border-border/50 text-transparent"
                     }`}
                     aria-hidden
                   >
-                    <Check className="h-3 w-3" />
+                    <Check className="h-2.5 w-2.5" />
                   </span>
                 </div>
-                <p className="mt-5 text-serif text-2xl leading-none">{c.label}</p>
-                <p className="mt-2 text-xs text-muted-foreground">{c.hint}</p>
+                <p className="mt-4 text-serif text-xl leading-none sm:text-2xl">{c.label}</p>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">{c.hint}</p>
               </button>
             );
           })}
@@ -85,9 +89,9 @@ function BeginPage() {
       </section>
 
       <div className="fixed inset-x-0 bottom-0 z-20">
-        <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background to-transparent" />
-        <div className="relative border-t border-border/60 bg-background/80 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4">
+        <div className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background to-transparent" />
+        <div className="relative border-t border-border/30 bg-background/80 backdrop-blur-lg">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
             <p className="text-xs text-muted-foreground">
               {selected.length === 0
                 ? "Select at least one"
@@ -96,7 +100,7 @@ function BeginPage() {
             <button
               onClick={proceed}
               disabled={selected.length === 0}
-              className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3.5 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+              className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Continue
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />

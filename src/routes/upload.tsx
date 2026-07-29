@@ -92,22 +92,22 @@ function UploadPage() {
 
   return (
     <Shell>
-      <section className="mx-auto max-w-3xl px-5 pb-32 pt-10 sm:pt-16">
-        <p className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">Step 02 · Offering</p>
+      <section className="mx-auto max-w-3xl px-5 pb-32 pt-8 sm:pt-14">
+        <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">Step 02 · Offering</p>
         <h1 className="mt-3 text-serif text-4xl leading-tight sm:text-5xl">
           Share the images Muse will read.
         </h1>
-        <p className="mt-4 max-w-xl text-muted-foreground">
+        <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
           Not the most curated. The most <em className="italic">you</em>. Muse reads the quiet decisions —
           the light you kept, the texture you chose, the corner you didn't stage.
         </p>
 
         {categories.length > 0 && (
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             {categories.map((c) => (
               <span
                 key={c}
-                className="inline-flex items-center rounded-full glass px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-foreground/75 shadow-soft"
+                className="inline-flex items-center rounded-full border border-border/30 px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-foreground/60"
               >
                 {CATEGORY_LABELS[c] ?? c}
               </span>
@@ -115,12 +115,10 @@ function UploadPage() {
           </div>
         )}
 
-        <div className="mt-6 glass rounded-2xl px-4 py-3 text-xs text-muted-foreground shadow-soft sm:text-sm">
-          <ul className="grid gap-1 sm:grid-cols-3">
-            <li>• Upload up to 5 images</li>
-            <li>• JPG, PNG or WEBP</li>
-            <li>• Maximum 10 MB per image</li>
-          </ul>
+        <div className="mt-5 border-b border-border/20 pb-3 text-xs text-muted-foreground">
+          <span className="mr-4">Upload up to 5 images</span>
+          <span className="mr-4">JPG · PNG · WEBP</span>
+          <span>10 MB max each</span>
         </div>
 
         <div
@@ -131,58 +129,58 @@ function UploadPage() {
             setDrag(false);
             void handleFiles(e.dataTransfer.files);
           }}
-          className={`glass mt-6 rounded-3xl p-3 shadow-soft transition ${
-            drag ? "ring-2 ring-primary/60" : ""
+          className={`mt-6 rounded-xl border-2 border-dashed transition ${
+            drag ? "border-foreground/40 bg-foreground/[0.02]" : "border-border/30 hover:border-border/60"
           }`}
         >
           {images.length === 0 ? (
             <button
               onClick={() => inputRef.current?.click()}
-              className="flex h-[360px] w-full flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/70 text-center sm:h-[440px]"
+              className="flex h-[320px] w-full flex-col items-center justify-center gap-4 text-center sm:h-[400px]"
             >
-              <span className="grid h-14 w-14 place-items-center rounded-full glass shadow-soft">
+              <span className="grid h-12 w-12 place-items-center rounded-full border border-border/40 text-foreground/50">
                 <Upload className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-serif text-xl">Drop your images here</p>
+                <p className="text-serif text-lg text-foreground/80">Drop your images here</p>
                 <p className="mt-1 text-xs uppercase tracking-[0.3em] text-muted-foreground">
                   or tap to browse
                 </p>
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full glass px-4 py-2 text-xs text-foreground/70 shadow-soft">
-                <ImageIcon className="h-3.5 w-3.5" /> Up to 5 · JPG · PNG · WEBP · 10 MB
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/30 px-4 py-1.5 text-[10px] text-foreground/50">
+                <ImageIcon className="h-3 w-3" /> Up to 5 · JPG · PNG · WEBP · 10 MB
               </span>
             </button>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-3">
               {images.map((src, i) => (
                 <div
                   key={i}
-                  className="relative overflow-hidden rounded-2xl shadow-soft"
+                  className="relative overflow-hidden rounded-lg"
                 >
                   <img
                     src={src}
                     alt={`Selection ${i + 1}`}
-                    className="h-40 w-full object-cover sm:h-44"
+                    className="h-36 w-full object-cover sm:h-40"
                   />
                   <button
                     onClick={() => remove(i)}
                     aria-label="Remove image"
-                    className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full glass shadow-soft"
+                    className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-background/80 text-foreground/70 backdrop-blur-sm"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-3 w-3" />
                   </button>
                 </div>
               ))}
               {canAdd && (
                 <button
                   onClick={() => inputRef.current?.click()}
-                  className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border/70 text-center text-muted-foreground transition hover:text-foreground sm:h-44"
+                  className="flex h-36 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 text-center text-muted-foreground transition hover:text-foreground sm:h-40"
                 >
-                  <span className="grid h-10 w-10 place-items-center rounded-full glass shadow-soft">
-                    <Plus className="h-4 w-4" />
+                  <span className="grid h-8 w-8 place-items-center rounded-full border border-border/30">
+                    <Plus className="h-3.5 w-3.5" />
                   </span>
-                  <span className="text-xs uppercase tracking-[0.28em]">Add more</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em]">Add more</span>
                 </button>
               )}
             </div>
@@ -206,9 +204,9 @@ function UploadPage() {
       </section>
 
       <div className="fixed inset-x-0 bottom-0 z-20">
-        <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-background to-transparent" />
-        <div className="relative border-t border-border/60 bg-background/80 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4">
+        <div className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background to-transparent" />
+        <div className="relative border-t border-border/30 bg-background/80 backdrop-blur-lg">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
             <p className="text-xs text-muted-foreground">
               {images.length === 0
                 ? "Nothing stays on our servers — it lives on your device."
@@ -217,7 +215,7 @@ function UploadPage() {
             <button
               onClick={proceed}
               disabled={images.length === 0}
-              className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3.5 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+              className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Read my aesthetic
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
