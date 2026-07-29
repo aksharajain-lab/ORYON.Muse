@@ -155,3 +155,47 @@ export function loadResult(): AestheticResult | null {
     return v ? (JSON.parse(v) as AestheticResult) : null;
   } catch { return null; }
 }
+
+/* ── Guest Usage Limits ── */
+
+export const ANALYSIS_LIMIT = 1;
+export const ANALYSIS_FOLLOWUP_LIMIT = 3;
+export const DIRECT_CHAT_LIMIT = 5;
+
+const ANALYSIS_USED_KEY = "oryon.analysis_used";
+const GUIDE_ANALYSIS_MSGS_KEY = "oryon.guide_analysis_msgs";
+const GUIDE_DIRECT_MSGS_KEY = "oryon.guide_direct_msgs";
+
+export function getAnalysisUsed(): boolean {
+  try { return localStorage.getItem(ANALYSIS_USED_KEY) === "true"; } catch { return false; }
+}
+
+export function setAnalysisUsed() {
+  try { localStorage.setItem(ANALYSIS_USED_KEY, "true"); } catch {}
+}
+
+export function getGuideAnalysisMessages(): number {
+  try {
+    const v = localStorage.getItem(GUIDE_ANALYSIS_MSGS_KEY);
+    return v ? parseInt(v, 10) : 0;
+  } catch { return 0; }
+}
+
+export function incrementGuideAnalysisMessages(): number {
+  const next = getGuideAnalysisMessages() + 1;
+  try { localStorage.setItem(GUIDE_ANALYSIS_MSGS_KEY, String(next)); } catch {}
+  return next;
+}
+
+export function getGuideDirectMessages(): number {
+  try {
+    const v = localStorage.getItem(GUIDE_DIRECT_MSGS_KEY);
+    return v ? parseInt(v, 10) : 0;
+  } catch { return 0; }
+}
+
+export function incrementGuideDirectMessages(): number {
+  const next = getGuideDirectMessages() + 1;
+  try { localStorage.setItem(GUIDE_DIRECT_MSGS_KEY, String(next)); } catch {}
+  return next;
+}

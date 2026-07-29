@@ -1,7 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useRef, useState } from "react";
-import { loadResult, loadEvolution, EVOLVE_DIRECTIONS, type AestheticResult } from "@/lib/aesthetic";
+import {
+  loadResult,
+  loadEvolution,
+  EVOLVE_DIRECTIONS,
+  getGuideAnalysisMessages,
+  incrementGuideAnalysisMessages,
+  getGuideDirectMessages,
+  incrementGuideDirectMessages,
+  ANALYSIS_FOLLOWUP_LIMIT,
+  DIRECT_CHAT_LIMIT,
+  type AestheticResult,
+} from "@/lib/aesthetic";
 import { Send, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/guide")({
@@ -15,6 +26,18 @@ export const Route = createFileRoute("/guide")({
   }),
   component: GuidePage,
 });
+
+const ANALYSIS_LIMIT_MSG =
+  "Your Muse has completed this reading. The thread of this conversation has been " +
+  "thoughtfully noted, and every insight you've shared has shaped your evolving portrait. " +
+  "To continue your journey — with unlimited readings, saved profiles, and deeper guidance " +
+  "— the next chapter awaits with a personal Muse profile. Until then, the quiet is yours to sit with.";
+
+const DIRECT_LIMIT_MSG =
+  "Thank you for sharing your thoughts with Muse. You have reached the gentle end " +
+  "of this conversation. Your curiosities have been heard, and they linger in the margins. " +
+  "To continue your exploration — with image readings, saved discoveries, and your personal " +
+  "curator — create your personal Muse profile. Your aesthetic is still unfolding.";
 
 type Msg = { id: string; role: "muse" | "you"; text: string };
 
@@ -182,42 +205,67 @@ function GuidePage() {
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [typing, setTyping] = useState(false);
+  const [msgCount, setMsgCount] = useState(0);
+  const [limitReached, setLimitReached] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const v = loadResult();
     const evo = loadEvolution();
+    const isAnalysis = !!v;
+    const savedCount = isAnalysis ? getGuideAnalysisMessages() : getGuideDirectMessages();
+    setMsgCount(savedCount);
+    if (savedCount >= (isAnalysis ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT)) {
+      setLimitReached(true);
+    }
     const evoNames = evo
       .map((id) => EVOLVE_DIRECTIONS.find((d) => d.id === id))
       .filter(Boolean)
       .map((d) => d!.name);
     setR(v);
-    setMsgs([
-      {
-        id: "m1",
-        role: "muse",
-        text: v
-          ? evoNames.length > 0
-            ? `I have been sitting with your reading — ${v.identity}. And I see you are curious about ${evoNames.join(", ")}. There is something compelling about that combination — the thread that runs from where you are to where you want to go. Shall we explore where those worlds meet?`
-            : `I have been sitting with your reading — ${v.identity}. There is a particular quality to the way you see the world, and I would love to explore it with you. Shall we begin with your palette, the spaces you inhabit, or the way you move through your day?`
-          : `Good to meet you. We can begin even without an image — tell me about the last space, outfit, or object that stopped you. A detail that held your attention longer than expected. The specific things you notice are where your aesthetic lives.`,
-      },
-    ]);
+    const limitMsg = v ? ANALYSIS_LIMIT_MSG : DIRECT_LIMIT_MSG;
+    const greeting = v
+      ? evoNames.length > 0
+        ? `I have been sitting with your reading — ${v.identity}. And I see you are curious about ${evoNames.join(", ")}. There is something compelling about that combination — the thread that runs from where you are to where you want to go. Shall we explore where those worlds meet?`
+        : `I have been sitting with your reading — ${v.identity}. There is a particular quality to the way you see the world, and I would love to explore it with you. Shall we begin with your palette, the spaces you inhabit, or the way you move through your day?`
+      : `Good to meet you. We can begin even without an image — tell me about the last space, outfit, or object that stopped you. A detail that held your attention longer than expected. The specific things you notice are where your aesthetic lives.`;
+
+    const initial: Msg[] = [{ id: "m1", role: "muse", text: greeting }];
+    if (savedCount >= (v ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT)) {
+      initial.push({ id: "limit", role: "muse", text: limitMsg });
+    }
+    setMsgs(initial);
   }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, typing]);
 
+  const isAnalysis = !!r;
+  const maxMsgs = isAnalysis ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT;
+  const limitMsg = isAnalysis ? ANALYSIS_LIMIT_MSG : DIRECT_LIMIT_MSG;
+
   const send = (text: string) => {
     const t = text.trim();
-    if (!t) return;
+    if (!t || limitReached) return;
+
+    const newCount = isAnalysis
+      ? incrementGuideAnalysisMessages()
+      : incrementGuideDirectMessages();
+    setMsgCount(newCount);
+    if (newCount >= maxMsgs) {
+      setLimitReached(true);
+    }
+
     setMsgs((m) => [...m, { id: crypto.randomUUID(), role: "you", text: t }]);
     setInput("");
     setTyping(true);
     setTimeout(() => {
-      const evo = loadEvolution();
-      setMsgs((m) => [...m, { id: crypto.randomUUID(), role: "muse", text: reply(t, r, evo) }]);
+      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", text: reply(t, r, loadEvolution()) }];
+      if (newCount >= maxMsgs) {
+        nextMsgs.push({ id: "limit", role: "muse", text: limitMsg });
+      }
+      setMsgs((m) => [...m, ...nextMsgs]);
       setTyping(false);
     }, 1200 + Math.random() * 800);
   };
@@ -276,35 +324,47 @@ function GuidePage() {
           </div>
 
           <div className="border-t border-border/20 p-3 sm:p-4">
-            <div className="mb-2.5 flex flex-wrap gap-1.5">
-              {PROMPTS.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => send(p)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/30 px-2.5 py-1 text-[10px] text-foreground/60 transition hover:border-foreground/30 hover:text-foreground"
-                >
-                  <Sparkles className="h-2.5 w-2.5" /> {p}
-                </button>
-              ))}
-            </div>
-            <form
-              onSubmit={(e) => { e.preventDefault(); send(input); }}
-              className="flex items-center gap-2 rounded-xl border border-border/30 px-2 py-1.5"
-            >
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Muse anything…"
-                className="flex-1 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
-              />
-              <button
-                type="submit"
-                aria-label="Send"
-                className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-foreground text-background shadow-soft transition hover:-translate-y-0.5"
+            {!limitReached && (
+              <div className="mb-2.5 flex flex-wrap gap-1.5">
+                {PROMPTS.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => send(p)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border/30 px-2.5 py-1 text-[10px] text-foreground/60 transition hover:border-foreground/30 hover:text-foreground"
+                  >
+                    <Sparkles className="h-2.5 w-2.5" /> {p}
+                  </button>
+                ))}
+              </div>
+            )}
+            {limitReached ? (
+              <div className="flex flex-col items-center gap-2 py-2">
+                <span className="h-px w-12 bg-border/30" />
+                <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground/60">
+                  {isAnalysis ? "Reading complete" : "Conversation complete"}
+                </p>
+                <span className="h-px w-12 bg-border/30" />
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => { e.preventDefault(); send(input); }}
+                className="flex items-center gap-2 rounded-xl border border-border/30 px-2 py-1.5"
               >
-                <Send className="h-3.5 w-3.5" />
-              </button>
-            </form>
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask Muse anything…"
+                  className="flex-1 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
+                />
+                <button
+                  type="submit"
+                  aria-label="Send"
+                  className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-foreground text-background shadow-soft transition hover:-translate-y-0.5"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </form>
+            )}
           </div>
         </div>
 

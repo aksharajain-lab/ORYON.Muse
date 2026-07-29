@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useCallback, useEffect, useState } from "react";
-import { loadResult, saveEvolution, loadEvolution, EVOLVE_DIRECTIONS, type AestheticResult } from "@/lib/aesthetic";
+import { loadResult, saveEvolution, loadEvolution, EVOLVE_DIRECTIONS, setAnalysisUsed, type AestheticResult } from "@/lib/aesthetic";
 import { ArrowRight, Download, MessageCircle, Share2, Camera, Check, Compass } from "lucide-react";
 
 export const Route = createFileRoute("/result")({
@@ -23,7 +23,10 @@ function ResultPage() {
   useEffect(() => {
     const v = loadResult();
     if (!v) nav({ to: "/upload" });
-    else setR(v);
+    else {
+      setR(v);
+      setAnalysisUsed();
+    }
   }, [nav]);
 
   if (!r) return <Shell><div className="p-10 text-center text-muted-foreground">Preparing your reading…</div></Shell>;

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useState } from "react";
-import { mockAnalyze, saveResult } from "@/lib/aesthetic";
+import { mockAnalyze, saveResult, getAnalysisUsed } from "@/lib/aesthetic";
 
 export const Route = createFileRoute("/analyzing")({
   head: () => ({
@@ -26,9 +26,23 @@ const STEPS = [
 function Analyzing() {
   const nav = useNavigate();
   const [step, setStep] = useState(0);
+  const [blocked, setBlocked] = useState(false);
+
+  // Redirect if analysis already used
+  useEffect(() => {
+    if (getAnalysisUsed()) {
+      setBlocked(true);
+      nav({ to: "/result" });
+    }
+  }, [nav]);
+
+  if (blocked) {
+    return <Shell><div className="p-10 text-center text-muted-foreground">Your reading awaits…</div></Shell>;
+  }
 
   useEffect(() => {
     const image = sessionStorage.getItem("oryon.image") ?? undefined;
+    if (getAnalysisUsed()) return;
     const total = STEPS.length;
     const per = 900;
     const id = setInterval(() => {
