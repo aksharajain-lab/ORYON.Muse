@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as BeginRouteImport } from './routes/begin'
 import { Route as AnalyzingRouteImport } from './routes/analyzing'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -30,6 +31,11 @@ const GuideRoute = GuideRouteImport.update({
   path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BeginRoute = BeginRouteImport.update({
+  id: '/begin',
+  path: '/begin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyzingRoute = AnalyzingRouteImport.update({
   id: '/analyzing',
   path: '/analyzing',
@@ -44,6 +50,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analyzing': typeof AnalyzingRoute
+  '/begin': typeof BeginRoute
   '/guide': typeof GuideRoute
   '/result': typeof ResultRoute
   '/upload': typeof UploadRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analyzing': typeof AnalyzingRoute
+  '/begin': typeof BeginRoute
   '/guide': typeof GuideRoute
   '/result': typeof ResultRoute
   '/upload': typeof UploadRoute
@@ -59,21 +67,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analyzing': typeof AnalyzingRoute
+  '/begin': typeof BeginRoute
   '/guide': typeof GuideRoute
   '/result': typeof ResultRoute
   '/upload': typeof UploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analyzing' | '/guide' | '/result' | '/upload'
+  fullPaths: '/' | '/analyzing' | '/begin' | '/guide' | '/result' | '/upload'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analyzing' | '/guide' | '/result' | '/upload'
-  id: '__root__' | '/' | '/analyzing' | '/guide' | '/result' | '/upload'
+  to: '/' | '/analyzing' | '/begin' | '/guide' | '/result' | '/upload'
+  id:
+    | '__root__'
+    | '/'
+    | '/analyzing'
+    | '/begin'
+    | '/guide'
+    | '/result'
+    | '/upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyzingRoute: typeof AnalyzingRoute
+  BeginRoute: typeof BeginRoute
   GuideRoute: typeof GuideRoute
   ResultRoute: typeof ResultRoute
   UploadRoute: typeof UploadRoute
@@ -102,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/begin': {
+      id: '/begin'
+      path: '/begin'
+      fullPath: '/begin'
+      preLoaderRoute: typeof BeginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analyzing': {
       id: '/analyzing'
       path: '/analyzing'
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyzingRoute: AnalyzingRoute,
+  BeginRoute: BeginRoute,
   GuideRoute: GuideRoute,
   ResultRoute: ResultRoute,
   UploadRoute: UploadRoute,
@@ -129,13 +154,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
