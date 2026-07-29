@@ -132,7 +132,7 @@ function Landing() {
           </h2>
           <div className="mt-8">
             <Link
-              to="/upload"
+              to="/begin"
               className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3.5 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5"
             >
               Begin — it takes a moment
