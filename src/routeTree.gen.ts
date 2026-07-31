@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as EvolveRouteImport } from './routes/evolve'
 import { Route as BeginRouteImport } from './routes/begin'
 import { Route as AnalyzingRouteImport } from './routes/analyzing'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +30,11 @@ const ResultRoute = ResultRouteImport.update({
 const GuideRoute = GuideRouteImport.update({
   id: '/guide',
   path: '/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvolveRoute = EvolveRouteImport.update({
+  id: '/evolve',
+  path: '/evolve',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BeginRoute = BeginRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analyzing': typeof AnalyzingRoute
   '/begin': typeof BeginRoute
+  '/evolve': typeof EvolveRoute
   '/guide': typeof GuideRoute
   '/result': typeof ResultRoute
   '/upload': typeof UploadRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analyzing': typeof AnalyzingRoute
   '/begin': typeof BeginRoute
+  '/evolve': typeof EvolveRoute
   '/guide': typeof GuideRoute
   '/result': typeof ResultRoute
   '/upload': typeof UploadRoute
@@ -68,20 +76,36 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analyzing': typeof AnalyzingRoute
   '/begin': typeof BeginRoute
+  '/evolve': typeof EvolveRoute
   '/guide': typeof GuideRoute
   '/result': typeof ResultRoute
   '/upload': typeof UploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analyzing' | '/begin' | '/guide' | '/result' | '/upload'
+  fullPaths:
+    | '/'
+    | '/analyzing'
+    | '/begin'
+    | '/evolve'
+    | '/guide'
+    | '/result'
+    | '/upload'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analyzing' | '/begin' | '/guide' | '/result' | '/upload'
+  to:
+    | '/'
+    | '/analyzing'
+    | '/begin'
+    | '/evolve'
+    | '/guide'
+    | '/result'
+    | '/upload'
   id:
     | '__root__'
     | '/'
     | '/analyzing'
     | '/begin'
+    | '/evolve'
     | '/guide'
     | '/result'
     | '/upload'
@@ -91,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyzingRoute: typeof AnalyzingRoute
   BeginRoute: typeof BeginRoute
+  EvolveRoute: typeof EvolveRoute
   GuideRoute: typeof GuideRoute
   ResultRoute: typeof ResultRoute
   UploadRoute: typeof UploadRoute
@@ -117,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/guide'
       fullPath: '/guide'
       preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evolve': {
+      id: '/evolve'
+      path: '/evolve'
+      fullPath: '/evolve'
+      preLoaderRoute: typeof EvolveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/begin': {
@@ -147,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyzingRoute: AnalyzingRoute,
   BeginRoute: BeginRoute,
+  EvolveRoute: EvolveRoute,
   GuideRoute: GuideRoute,
   ResultRoute: ResultRoute,
   UploadRoute: UploadRoute,

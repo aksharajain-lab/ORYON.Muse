@@ -75,7 +75,13 @@
   --radius: 0.75rem;
 
   --background: oklch(0.955 0.01 65);
-  --foreground: oklch(0.23 0.012 300);
+  --foreground: oklch(0.22 0.014 305);
+
+  /* ── Typography accents ── */
+  --text-body: oklch(0.32 0.016 305);
+  --text-accent: var(--blush);
+  --text-gold: oklch(0.5 0.06 70);
+  --text-olive: oklch(0.42 0.045 130);
 
   --card: oklch(0.98 0.006 60);
   --card-foreground: oklch(0.23 0.012 300);
@@ -125,27 +131,36 @@
 .dark {
   /* Warm charcoal — the room, never the void */
   --background: oklch(0.145 0.014 45);
-  --foreground: oklch(0.87 0.022 70);
+
+  /* Parchment / ivory primary text — readable, never grey */
+  --foreground: oklch(0.93 0.022 72);
 
   /* Espresso / aged-paper surfaces */
   --card: oklch(0.185 0.02 45);
-  --card-foreground: oklch(0.87 0.022 70);
+  --card-foreground: oklch(0.93 0.022 72);
   --popover: oklch(0.185 0.02 45);
-  --popover-foreground: oklch(0.87 0.022 70);
+  --popover-foreground: oklch(0.93 0.022 72);
+
+  /* ── Typography accents ── */
+  --text-body: oklch(0.79 0.025 70);
+  --text-accent: oklch(0.8 0.05 80);
+  --text-gold: oklch(0.8 0.05 80);
+  --text-olive: oklch(0.72 0.045 110);
 
   /* Antique gold — a highlight, never a flood */
   --primary: oklch(0.72 0.06 80);
   --primary-foreground: oklch(0.15 0.015 45);
 
   --secondary: oklch(0.24 0.02 40);
-  --secondary-foreground: oklch(0.87 0.022 70);
+  --secondary-foreground: oklch(0.93 0.022 72);
 
   --muted: oklch(0.2 0.016 45);
-  --muted-foreground: oklch(0.62 0.022 65);
+  /* Warm beige secondary text */
+  --muted-foreground: oklch(0.74 0.025 70);
 
   /* Deep burgundy accent */
   --accent: oklch(0.32 0.08 22);
-  --accent-foreground: oklch(0.9 0.02 70);
+  --accent-foreground: oklch(0.93 0.022 72);
 
   --destructive: oklch(0.46 0.15 25);
   --destructive-foreground: oklch(0.98 0 0);
@@ -159,7 +174,7 @@
   --lavender: oklch(0.34 0.03 300);
   --powder: oklch(0.33 0.03 240);
   --sage: oklch(0.33 0.04 110);
-  --ivory: oklch(0.87 0.022 70);
+  --ivory: oklch(0.93 0.022 72);
   --gold: oklch(0.72 0.06 80);
   --burgundy: oklch(0.3 0.08 22);
   --forest: oklch(0.27 0.045 150);
@@ -214,7 +229,22 @@
   font-feature-settings: "cv01", "cv02", "cv03";
   line-height: var(--leading-loose);
   letter-spacing: 0.01em;
+  color: var(--text-body);
   -webkit-font-smoothing: antialiased;
+}
+
+@utility text-muse {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--text-accent);
+}
+
+@utility text-gold-accent {
+  color: var(--text-gold);
+}
+
+@utility text-olive-accent {
+  color: var(--text-olive);
 }
 
 @utility label-editorial {
@@ -278,12 +308,32 @@
   from { opacity: 0; transform: scale(0.6) translateY(6px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes settle {
+  from { opacity: 0; transform: scale(0.82) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes veil-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 @utility animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
 @utility animate-fade-up { animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @utility animate-reveal { animation: reveal 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @utility animate-draw-line { animation: draw-line 1s 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @utility animate-swatch-in { animation: swatch-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@utility animate-fade-in { animation: fade-in 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@utility animate-settle { animation: settle 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@utility animate-msg-in { animation: msg-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@utility animate-veil-in { animation: veil-in 0.8s ease-out both; }
 
 @utility delay-100 { animation-delay: 0.1s; }
 @utility delay-200 { animation-delay: 0.2s; }
@@ -319,19 +369,41 @@
     letter-spacing: var(--tracking-editorial);
     line-height: var(--leading-snug);
     color: var(--foreground);
+    text-wrap: balance;
   }
 
+  /* Main titles — the masthead voice */
   h1 {
+    font-weight: var(--font-weight-light);
     letter-spacing: var(--tracking-tight);
   }
 
-  ::selection {
-    background: color-mix(in oklab, var(--primary) 25%, transparent);
+  /* Aesthetic names — one step below the masthead */
+  h2 {
+    font-weight: var(--font-weight-regular);
+    letter-spacing: -0.01em;
   }
 
-  /* Improved paragraph readability */
+  /* Section headings — quieter, slightly tightened */
+  h3 {
+    font-weight: var(--font-weight-regular);
+    letter-spacing: var(--tracking-editorial);
+  }
+
+  h4 {
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--text-accent) 26%, transparent);
+    color: var(--foreground);
+  }
+
+  /* Body — comfortable editorial reading */
   p {
     line-height: var(--leading-loose);
     letter-spacing: 0.01em;
+    color: var(--text-body);
   }
 }

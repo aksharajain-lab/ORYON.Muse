@@ -22,8 +22,8 @@ function Landing() {
   return (
     <Shell>
       {/* ── Hero Section ── */}
-      <section className="relative mx-auto max-w-5xl px-5 pt-8 sm:pt-14">
-        <div className="grid gap-12 sm:gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <section className="relative mx-auto max-w-5xl px-5 pt-12 sm:pt-24">
+        <div className="grid gap-16 sm:gap-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div className="animate-fade-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/40 px-3 py-1 text-[9px] uppercase tracking-[0.35em] text-muted-foreground">
               <span className="h-1 w-1 rounded-full bg-primary/70" /> Aesthetic Intelligence
@@ -49,21 +49,6 @@ function Landing() {
               >
                 Talk to your guide
               </Link>
-            </div>
-
-            {/* ── Process cards ── */}
-            <div className="mt-12 grid grid-cols-3 gap-3 sm:max-w-md">
-              {[
-                { n: "01", t: "Analyze", d: "Share an image of your visual world" },
-                { n: "02", t: "Distill", d: "Receive your Aesthetic DNA reading" },
-                { n: "03", t: "Evolve", d: "Refine your direction with your guide" },
-              ].map(({ n, t, d }) => (
-                <div key={n} className="rounded-lg border border-border/30 p-3 shadow-soft transition hover:border-foreground/20">
-                  <p className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground">{n}</p>
-                  <p className="mt-1.5 text-serif text-xl leading-none text-foreground">{t}</p>
-                  <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">{d}</p>
-                </div>
-              ))}
             </div>
           </div>
 
@@ -110,7 +95,7 @@ function Landing() {
       </section>
 
       {/* ── The Method ── */}
-      <section className="relative mx-auto mt-24 max-w-5xl px-5 sm:mt-28">
+      <section className="relative mx-auto mt-32 max-w-5xl px-5 sm:mt-40">
         <div className="flex items-end justify-between">
           <div>
             <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">The Method</p>
@@ -132,7 +117,7 @@ function Landing() {
                 <span className="grid h-9 w-9 place-items-center rounded-lg border border-border/30 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                   {n}
                 </span>
-                <Icon className="h-4 w-4 text-foreground/40 transition group-hover:text-foreground/70" />
+                <Icon className="h-4 w-4 text-foreground/60 transition group-hover:text-foreground/80" />
               </div>
               <h3 className="mt-5 text-serif text-2xl text-foreground">{t}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d}</p>

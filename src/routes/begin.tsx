@@ -67,7 +67,7 @@ function BeginPage() {
           <div className="hidden text-right sm:block">
             <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">Worlds chosen</p>
             <p className="mt-1.5 text-serif text-2xl leading-none text-foreground/85">
-              {selected.length} <span className="text-lg text-foreground/35">/ {MAX_SELECTIONS}</span>
+              {selected.length} <span className="text-lg text-foreground/60">/ {MAX_SELECTIONS}</span>
             </p>
           </div>
         </div>
@@ -128,7 +128,7 @@ function BeginPage() {
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
             <div className="min-w-0">
               <p className="text-serif text-base text-foreground/85">
-                {selected.length} <span className="text-sm text-foreground/40">/ {MAX_SELECTIONS} selected</span>
+                {selected.length} <span className="text-sm text-foreground/65">/ {MAX_SELECTIONS} selected</span>
               </p>
               {warn ? (
                 <p className="animate-fade-up mt-1 text-[11px] italic text-muted-foreground">

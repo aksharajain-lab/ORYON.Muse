@@ -138,7 +138,7 @@ function UploadPage() {
               onClick={() => inputRef.current?.click()}
               className="flex h-[320px] w-full flex-col items-center justify-center gap-4 text-center sm:h-[400px]"
             >
-              <span className="grid h-12 w-12 place-items-center rounded-full border border-border/40 text-foreground/50">
+              <span className="grid h-12 w-12 place-items-center rounded-full border border-border/40 text-foreground/70">
                 <Upload className="h-5 w-5" />
               </span>
               <div>
@@ -147,7 +147,7 @@ function UploadPage() {
                   or tap to browse
                 </p>
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/30 px-4 py-1.5 text-[10px] text-foreground/50">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/30 px-4 py-1.5 text-[10px] text-foreground/70">
                 <ImageIcon className="h-3 w-3" /> Up to 5 · JPG · PNG · WEBP · 10 MB
               </span>
             </button>

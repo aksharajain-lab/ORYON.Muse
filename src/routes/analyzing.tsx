@@ -27,6 +27,7 @@ function Analyzing() {
   const nav = useNavigate();
   const [step, setStep] = useState(0);
   const [blocked, setBlocked] = useState(false);
+  const [veil, setVeil] = useState(false);
 
   // Redirect if analysis already used
   useEffect(() => {
@@ -49,7 +50,9 @@ function Analyzing() {
           clearInterval(id);
           const r = mockAnalyze(image);
           saveResult(r);
-          setTimeout(() => nav({ to: "/result" }), 600);
+          // A gentle veil — the reading completes, then the reveal begins.
+          setVeil(true);
+          setTimeout(() => nav({ to: "/result" }), 950);
           return s;
         }
         return s + 1;
@@ -64,6 +67,13 @@ function Analyzing() {
 
   return (
     <Shell>
+      {veil && (
+        <div className="animate-veil-in pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background">
+          <p className="text-[9px] uppercase tracking-[0.5em] text-muted-foreground">
+            Your reading is ready.
+          </p>
+        </div>
+      )}
       <section className="mx-auto flex max-w-2xl flex-col items-center px-5 pt-16 text-center sm:pt-24">
         <div className="relative mb-10 h-32 w-32">
           <div className="absolute inset-0 rounded-full border border-border/30" />

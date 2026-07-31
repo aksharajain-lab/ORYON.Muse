@@ -28,7 +28,7 @@ export function Shell({ children }: { children: ReactNode }) {
               <span className="text-serif text-base leading-none text-foreground">O</span>
             </span>
             <span className="text-serif text-base tracking-[0.22em] text-foreground/85">
-              ORYON <span className="italic text-foreground/50">Muse</span>
+              ORYON <span className="text-muse">Muse</span>
             </span>
           </Link>
           <ThemeToggle />
