@@ -23,9 +23,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   room: "Room",
   outfit: "Outfit",
   moodboard: "Moodboard",
-  social: "Social Profile",
+  social: "Social",
   workspace: "Workspace",
-  other: "Other",
+  photo: "Photo",
 };
 
 function UploadPage() {

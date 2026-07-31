@@ -11,6 +11,10 @@ import {
   incrementGuideDirectMessages,
   ANALYSIS_FOLLOWUP_LIMIT,
   DIRECT_CHAT_LIMIT,
+  studyReply,
+  dialogueReply,
+  STUDY_PROMPTS,
+  DIALOGUE_PROMPTS,
   type AestheticResult,
 } from "@/lib/aesthetic";
 import { Send, Sparkles } from "lucide-react";
@@ -36,169 +40,10 @@ const ANALYSIS_LIMIT_MSG =
 const DIRECT_LIMIT_MSG =
   "Thank you for sharing your thoughts with Muse. You have reached the gentle end " +
   "of this conversation. Your curiosities have been heard, and they linger in the margins. " +
-  "To continue your exploration — with image readings, saved discoveries, and your personal " +
+  "To continue your exploration — with deeper guidance, saved discoveries, and your personal " +
   "curator — create your personal Muse profile. Your aesthetic is still unfolding.";
 
 type Msg = { id: string; role: "muse" | "you"; text: string };
-
-const PROMPTS = [
-  "Tell me about my aesthetic signature",
-  "How can I refine my palette?",
-  "What should I look for this season?",
-  "Suggest one meaningful change",
-];
-
-function reply(input: string, r: AestheticResult | null, evo: string[]): string {
-  const { identity, palette, traits, signature, suggestions, tagline } = r ?? {};
-  const name = identity ?? "your aesthetic";
-  const colours = palette?.map((p) => p.name).join(", ") ?? "your palette";
-  const evoNames = evo
-    .map((id) => EVOLVE_DIRECTIONS.find((d) => d.id === id))
-    .filter(Boolean)
-    .map((d) => d!.name);
-  const evoContext =
-    evoNames.length > 0
-      ? `I know you are looking to move toward ${evoNames.join(", ")}. `
-      : "";
-  const low = input.toLowerCase();
-
-  // Deep palette reflection
-  if (low.includes("palette") || low.includes("colour") || low.includes("color") || low.includes("shade") || low.includes("tone")) {
-    return (
-      `Let's sit with your palette for a moment. The colours you gravitate toward — ${colours} — are not coincidental. ` +
-      `They speak to a sensibility that ${name.toLowerCase()}s share: a preference for tones that feel lived-in, ` +
-      `colours that don't demand attention but earn it over time.\n\n` +
-      `Here is what I notice: the conversation between your lightest and darkest tones creates a quiet tension ` +
-      `— a narrative arc within your palette. To deepen it, introduce one grounding note: a deep walnut, ` +
-      `an inky charcoal, or a burnished bronze. Something that anchors the softness and gives it a spine.`
-    );
-  }
-
-  // Evolution & seasonal reflection
-  if (low.includes("evolve") || low.includes("season") || low.includes("change") || low.includes("refresh") || low.includes("update")) {
-    const evoGuidance =
-      evoNames.length > 0
-        ? `Given that you are drawn toward ${evoNames.join(" and ")}, I would suggest ` +
-          `looking for the places where your current ${name.toLowerCase()} sensibility naturally ` +
-          `overlaps with those influences. That intersection — where you already are and where you ` +
-          `want to go — is the most fertile ground for evolution.\n\n`
-        : "";
-    return (
-      `${evoGuidance}` +
-      `Evolution, for a ${name.toLowerCase()}, is never about reinvention — it is about refinement. ` +
-      `Keep eighty percent of what your instincts have already chosen for you. That foundation is yours. ` +
-      `Then introduce one new texture (raw silk, brushed brass, aged leather) and one unfamiliar silhouette. ` +
-      `Place them in your space, wear them, live with them for a week. Notice which one your eye returns to. ` +
-      `That return is your answer. The season doesn't demand a new you — it simply asks you to notice what you already are.`
-    );
-  }
-
-  // Shopping & acquisition
-  if (low.includes("shop") || low.includes("buy") || low.includes("list") || low.includes("purchase") || low.includes("acquire")) {
-    const accent = palette?.[1]?.name ?? "blush";
-    const evoNote =
-      evoNames.length > 0
-        ? `Given your interest in ${evoNames.join(" and ")}, prioritise pieces that ` +
-          `bridge your current ${name.toLowerCase()} sensibility with those influences. ` +
-          `The most lasting acquisitions are the ones that speak to both where you are and where you are going.\n\n`
-        : "";
-    return (
-      `${evoNote}` +
-      `A considered capsule, curated for your ${name.toLowerCase()} sensibility:\n\n` +
-      `• An unlacquered brass object — a candlestick, a small dish — that will patina with your days\n` +
-      `• A linen throw in bone or ivory — texture that asks to be touched\n` +
-      `• One antique frame, emptiness inside — a composition waiting for the right thing\n` +
-      `• A slim taper in ${accent}, to be lit at the same hour each evening\n\n` +
-      `Nothing more for a month. Let each piece arrive slowly, and notice how it changes the room before you add another.`
-    );
-  }
-
-  // Space & room
-  if (low.includes("room") || low.includes("space") || low.includes("home") || low.includes("decor")) {
-    const evoNote =
-      evoNames.length > 0
-        ? `As you move toward ${evoNames.join(" and ")}, your space will evolve gradually — ` +
-          `not through replacement but through layering. Let one corner of the room reflect the direction you are ` +
-          `curious about before committing the entire space.\n\n`
-        : "";
-    return (
-      `${evoNote}` +
-      `Before you add anything to the room, remove one thing from every surface. Then step back and see ` +
-      `what the space is actually asking for — not what you think it should have. Move your lamp lower. ` +
-      `Let one corner remain in deeper shadow. Rearrange before you buy — the same objects in a new ` +
-      `conversation can feel like an entirely different room.\n\n` +
-      `Your ${name.toLowerCase()} reads best when there is room to breathe. If the space still asks for ` +
-      `something after you have cleared it, it will ask specifically — and you will know exactly what.`
-    );
-  }
-
-  // Wardrobe & outfit
-  if (low.includes("outfit") || low.includes("wear") || low.includes("dress") || low.includes("wardrobe") || low.includes("clothes")) {
-    return (
-      `Build your next outfit around one hero texture — the thing your hand wants to touch first. ` +
-      `Let your palette stay within the ${colours} you already own. The contrast you are looking for ` +
-      `comes not from a new colour but from proportion: a looser silhouette with a structured one, ` +
-      `a soft texture against a precise line.\n\n` +
-      `Your ${name.toLowerCase()} wardrobe is at its most compelling when each piece feels like it ` +
-      `belongs to the same story, even if the chapters are different seasons.`
-    );
-  }
-
-  // Identity / signature reflection
-  if (low.includes("identity") || low.includes("signature") || low.includes("style") || low.includes("aesthetic") || low.includes("who")) {
-    return signature
-      ? `Your aesthetic signature, as I read it: ${signature}\n\n` +
-        `What draws you to repeat this feeling across different spaces and moments? That repetition ` +
-        `is not accident — it is your visual instinct speaking clearly.`
-      : `I would need to read an image of yours first. Whenever you are ready, share what feels ` +
-        `most true to you right now, and we will begin.`;
-  }
-
-  // Suggestion / advice
-  if (low.includes("suggest") || low.includes("advice") || low.includes("help") || low.includes("recommend") || low.includes("what should")) {
-    if (suggestions && suggestions.length > 0) {
-      return (
-        `Something to consider: ${suggestions[0]}\n\n` +
-        `${suggestions[1] ?? ""}\n\n` +
-        `Try one this week. Not all three. The magic is in the singular, intentional act — not in the list.`
-      );
-    }
-    return `Every transformation begins with a single, deliberate choice. Tell me what you are ready to shift — a corner of a room, a morning ritual, a silhouette — and I will meet you there.`;
-  }
-
-  // Inspiration & mood
-  if (low.includes("inspire") || low.includes("mood") || low.includes("feeling") || low.includes("feel")) {
-    return (
-      `The most inspiring spaces and outfits are not the most curated ones. They are the ones that ` +
-      `feel inhabited — where the patina of use, the slight asymmetry, the object that doesn't quite match ` +
-      `tell a story only you could tell.\n\n` +
-      `For your ${name.toLowerCase()} sensibility, the richest inspiration often lies in what you already ` +
-      `pass by daily but have stopped truly seeing. Look at your space with fresh eyes tonight. ` +
-      `Notice which object or corner makes you pause. That pause is your inspiration.`
-    );
-  }
-
-  // Texture & material
-  if (low.includes("texture") || low.includes("material") || low.includes("fabric") || low.includes("surface")) {
-    return (
-      `Texture is where your ${name.toLowerCase()} sensibility speaks most clearly. You are drawn to ` +
-      `surfaces that have a relationship with time — the things that soften, patina, or age gracefully.\n\n` +
-      `Consider layering three distinct materials in your next composition: one matte and weighty ` +
-      `(wool, stone, raw linen), one with a slight sheen (brass, silk, glazed ceramic), and one ` +
-      `with visible history (aged leather, weathered wood, a worn binding). The friction between them ` +
-      `creates the atmosphere you are instinctively reaching for.`
-    );
-  }
-
-  // Fallback — warm, open-ended, sophisticated
-  return (
-    `${evoContext}` +
-    `I would love to help you go deeper into your ${name.toLowerCase()} reading. ` +
-    `Tell me what drew you here today — a room you are reimagining, a season you are preparing for, ` +
-    `a way of dressing or being that you feel ready to understand more fully. ` +
-    `The more specific you are, the more I can offer in return.`
-  );
-}
 
 function GuidePage() {
   const [r, setR] = useState<AestheticResult | null>(null);
@@ -228,7 +73,7 @@ function GuidePage() {
       ? evoNames.length > 0
         ? `I have been sitting with your reading — ${v.identity}. And I see you are curious about ${evoNames.join(", ")}. There is something compelling about that combination — the thread that runs from where you are to where you want to go. Shall we explore where those worlds meet?`
         : `I have been sitting with your reading — ${v.identity}. There is a particular quality to the way you see the world, and I would love to explore it with you. Shall we begin with your palette, the spaces you inhabit, or the way you move through your day?`
-      : `Good to meet you. We can begin even without an image — tell me about the last space, outfit, or object that stopped you. A detail that held your attention longer than expected. The specific things you notice are where your aesthetic lives.`;
+      : `Good to meet you. Tell me about the last space, outfit, or object that stopped you — a detail that held your attention longer than expected. The specific things you notice are where your aesthetic lives.`;
 
     const initial: Msg[] = [{ id: "m1", role: "muse", text: greeting }];
     if (savedCount >= (v ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT)) {
@@ -244,6 +89,7 @@ function GuidePage() {
   const isAnalysis = !!r;
   const maxMsgs = isAnalysis ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT;
   const limitMsg = isAnalysis ? ANALYSIS_LIMIT_MSG : DIRECT_LIMIT_MSG;
+  const prompts = isAnalysis ? STUDY_PROMPTS : DIALOGUE_PROMPTS;
 
   const send = (text: string) => {
     const t = text.trim();
@@ -261,7 +107,11 @@ function GuidePage() {
     setInput("");
     setTyping(true);
     setTimeout(() => {
-      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", text: reply(t, r, loadEvolution()) }];
+      const context = msgs.filter((m) => m.role === "you").map((m) => m.text);
+      const answer = r
+        ? studyReply(t, r, loadEvolution())
+        : dialogueReply(t, loadEvolution(), [...context, t]);
+      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", text: answer }];
       if (newCount >= maxMsgs) {
         nextMsgs.push({ id: "limit", role: "muse", text: limitMsg });
       }
@@ -326,7 +176,7 @@ function GuidePage() {
           <div className="border-t border-border/20 p-3 sm:p-4">
             {!limitReached && (
               <div className="mb-2.5 flex flex-wrap gap-1.5">
-                {PROMPTS.map((p) => (
+                {prompts.map((p) => (
                   <button
                     key={p}
                     onClick={() => send(p)}

@@ -119,51 +119,58 @@
 
 /* ════════════════════════════════════════════
    THEME 2: DARK ACADEMIA 🌙
-   Charcoal · espresso · muted gold · burgundy
-   Old library · archival collection
+   Warm charcoal · espresso · parchment · olive · burgundy
+   Old library · archives · museum catalog
    ════════════════════════════════════════════ */
 .dark {
-  --background: oklch(0.14 0.012 35);
-  --foreground: oklch(0.85 0.015 65);
+  /* Warm charcoal — the room, never the void */
+  --background: oklch(0.145 0.014 45);
+  --foreground: oklch(0.87 0.022 70);
 
-  --card: oklch(0.17 0.01 35);
-  --card-foreground: oklch(0.85 0.015 65);
-  --popover: oklch(0.17 0.01 35);
-  --popover-foreground: oklch(0.85 0.015 65);
+  /* Espresso / aged-paper surfaces */
+  --card: oklch(0.185 0.02 45);
+  --card-foreground: oklch(0.87 0.022 70);
+  --popover: oklch(0.185 0.02 45);
+  --popover-foreground: oklch(0.87 0.022 70);
 
-  --primary: oklch(0.68 0.07 75);
-  --primary-foreground: oklch(0.14 0.012 35);
+  /* Antique gold — a highlight, never a flood */
+  --primary: oklch(0.72 0.06 80);
+  --primary-foreground: oklch(0.15 0.015 45);
 
-  --secondary: oklch(0.24 0.02 30);
-  --secondary-foreground: oklch(0.85 0.015 65);
+  --secondary: oklch(0.24 0.02 40);
+  --secondary-foreground: oklch(0.87 0.022 70);
 
-  --muted: oklch(0.2 0.012 35);
-  --muted-foreground: oklch(0.6 0.02 60);
+  --muted: oklch(0.2 0.016 45);
+  --muted-foreground: oklch(0.62 0.022 65);
 
-  --accent: oklch(0.33 0.09 22);
-  --accent-foreground: oklch(0.9 0.015 70);
+  /* Deep burgundy accent */
+  --accent: oklch(0.32 0.08 22);
+  --accent-foreground: oklch(0.9 0.02 70);
 
-  --destructive: oklch(0.48 0.18 25);
+  --destructive: oklch(0.46 0.15 25);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(0.28 0.015 35 / 0.5);
-  --input: oklch(0.24 0.015 35);
-  --ring: oklch(0.68 0.07 75);
+  /* Aged hairline seams */
+  --border: oklch(0.3 0.02 45 / 0.5);
+  --input: oklch(0.23 0.018 45);
+  --ring: oklch(0.72 0.06 80);
 
-  --blush: oklch(0.35 0.07 25);
-  --lavender: oklch(0.35 0.035 300);
-  --powder: oklch(0.34 0.035 240);
-  --sage: oklch(0.32 0.04 150);
-  --ivory: oklch(0.85 0.015 65);
-  --gold: oklch(0.68 0.07 75);
-  --burgundy: oklch(0.3 0.1 22);
-  --forest: oklch(0.26 0.05 150);
+  --blush: oklch(0.34 0.06 28);
+  --lavender: oklch(0.34 0.03 300);
+  --powder: oklch(0.33 0.03 240);
+  --sage: oklch(0.33 0.04 110);
+  --ivory: oklch(0.87 0.022 70);
+  --gold: oklch(0.72 0.06 80);
+  --burgundy: oklch(0.3 0.08 22);
+  --forest: oklch(0.27 0.045 150);
 
-  --glass: oklch(0.18 0.01 35 / 0.5);
-  --glass-border: oklch(0.68 0.07 75 / 0.1);
+  /* Warm, barely-there glass */
+  --glass: oklch(0.17 0.016 45 / 0.5);
+  --glass-border: oklch(0.72 0.06 80 / 0.08);
 
-  --shadow-luxe: 0 4px 24px -8px oklch(0 0 0 / 0.45), 0 0 0 1px oklch(1 0 0 / 0.03);
-  --shadow-soft: 0 2px 12px -4px oklch(0 0 0 / 0.35);
+  /* Soft, warm shadows — depth without gloss */
+  --shadow-luxe: 0 4px 20px -6px oklch(0.07 0.012 45 / 0.5), 0 1px 3px oklch(0.07 0.012 45 / 0.4);
+  --shadow-soft: 0 2px 10px -4px oklch(0.07 0.012 45 / 0.35);
 }
 
 /* ── Typography Utilities ── */
