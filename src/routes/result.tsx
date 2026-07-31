@@ -19,7 +19,11 @@ export const Route = createFileRoute("/result")({
 function ResultPage() {
   const nav = useNavigate();
   const [r, setR] = useState<AestheticResult | null>(null);
+  const [evoSelected, setEvoSelected] = useState<string[]>([]);
 
+  // NOTE: every hook must be declared before any conditional return —
+  // calling hooks after an early return crashes React ("Rendered more
+  // hooks than during the previous render") and was the production bug.
   useEffect(() => {
     const v = loadResult();
     if (!v) nav({ to: "/upload" });
@@ -28,18 +32,6 @@ function ResultPage() {
       setAnalysisUsed();
     }
   }, [nav]);
-
-  if (!r) return <Shell><div className="p-10 text-center text-muted-foreground">Preparing your reading…</div></Shell>;
-
-  const share = async () => {
-    const text = `My Aesthetic DNA: ${r.identity} — ${r.tagline}\n\nDiscover yours at ORYON Muse.`;
-    try {
-      if (navigator.share) await navigator.share({ title: `ORYON Muse — ${r.identity}`, text });
-      else { await navigator.clipboard.writeText(text); alert("Copied to clipboard."); }
-    } catch {}
-  };
-
-  const [evoSelected, setEvoSelected] = useState<string[]>([]);
 
   useEffect(() => {
     setEvoSelected(loadEvolution());
@@ -57,6 +49,17 @@ function ResultPage() {
     });
   }, []);
 
+  const share = async () => {
+    if (!r) return;
+    const text = `My Aesthetic DNA: ${r.identity} — ${r.tagline}\n\nDiscover yours at ORYON Muse.`;
+    try {
+      if (navigator.share) await navigator.share({ title: `ORYON Muse — ${r.identity}`, text });
+      else { await navigator.clipboard.writeText(text); alert("Copied to clipboard."); }
+    } catch {}
+  };
+
+  if (!r) return <Shell><div className="p-10 text-center text-muted-foreground">Preparing your reading…</div></Shell>;
+
   return (
     <Shell>
       <section className="mx-auto max-w-5xl px-5 pt-8 pb-24 sm:pt-12">
@@ -72,7 +75,7 @@ function ResultPage() {
             </p>
           </div>
           <span className="hidden text-[8px] uppercase tracking-[0.4em] text-muted-foreground sm:inline">
-            {new Date(r.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
+            {r.createdAt ? new Date(r.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) : ""}
           </span>
         </div>
 

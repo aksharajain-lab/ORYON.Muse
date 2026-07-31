@@ -36,13 +36,11 @@ function Analyzing() {
     }
   }, [nav]);
 
-  if (blocked) {
-    return <Shell><div className="p-10 text-center text-muted-foreground">Your reading awaits…</div></Shell>;
-  }
-
+  // NOTE: hooks must be declared before any conditional return —
+  // returning early before a hook crashed React on the blocked path.
   useEffect(() => {
+    if (blocked || getAnalysisUsed()) return;
     const image = sessionStorage.getItem("oryon.image") ?? undefined;
-    if (getAnalysisUsed()) return;
     const total = STEPS.length;
     const per = 900;
     const id = setInterval(() => {
@@ -58,7 +56,11 @@ function Analyzing() {
       });
     }, per);
     return () => clearInterval(id);
-  }, [nav]);
+  }, [nav, blocked]);
+
+  if (blocked) {
+    return <Shell><div className="p-10 text-center text-muted-foreground">Your reading awaits…</div></Shell>;
+  }
 
   return (
     <Shell>

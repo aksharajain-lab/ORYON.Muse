@@ -147,12 +147,28 @@ export function loadEvolution(): string[] {
 
 const KEY = "oryon.result";
 export function saveResult(r: AestheticResult) {
-  try { localStorage.setItem(KEY, JSON.stringify(r)); } catch {}
+  try {
+    localStorage.setItem(KEY, JSON.stringify(r));
+  } catch {
+    // The image data URL can exceed the localStorage quota (~5 MB on mobile).
+    // Save the reading without the image rather than losing the result entirely.
+    try {
+      const { imageDataUrl: _omit, ...rest } = r;
+      localStorage.setItem(KEY, JSON.stringify(rest));
+    } catch { /* storage unavailable — the result page will redirect to /upload */ }
+  }
 }
 export function loadResult(): AestheticResult | null {
   try {
     const v = localStorage.getItem(KEY);
-    return v ? (JSON.parse(v) as AestheticResult) : null;
+    if (!v) return null;
+    const parsed = JSON.parse(v) as AestheticResult | null;
+    // Guard against missing/corrupt data (e.g. older saved results or partial writes)
+    if (!parsed || typeof parsed !== "object") return null;
+    if (typeof parsed.identity !== "string" || !Array.isArray(parsed.palette) || !Array.isArray(parsed.traits)) {
+      return null;
+    }
+    return parsed;
   } catch { return null; }
 }
 
