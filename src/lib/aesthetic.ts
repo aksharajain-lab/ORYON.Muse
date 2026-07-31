@@ -12,7 +12,7 @@ export type AestheticResult = {
 const IDENTITIES = [
   {
     identity: "Ethereal Romantic",
-    tagline: "You move through the world like light through linen — softly, with intention, leaving warmth where you've been.",
+    tagline: "Soft light, layered texture, and quiet neutrals — you build atmosphere rather than decoration.",
     palette: [
       { name: "Ivory Silk", hex: "#F6EFE6" },
       { name: "Blush Petal", hex: "#E9C7C1" },
@@ -20,18 +20,18 @@ const IDENTITIES = [
       { name: "Powder Blue", hex: "#BFD1E2" },
       { name: "Muted Sage", hex: "#B7C4A9" },
     ],
-    traits: ["Intuitive", "Poetic", "Nostalgic", "Considered", "Quietly bold"],
+    traits: ["Intuitive", "Considered", "Nostalgic", "Sensitive", "Quietly confident"],
     signature:
-      "Your visual world lives in the space between delicacy and strength. You gravitate toward light that diffuses, surfaces that feel alive to the touch, and the kind of quiet that makes a room breathe. There is a restrained poetry in your choices — nothing shouts, but everything in your composition has been considered, even the pauses. You collect moments the way others collect objects, and your instinct for texture is finely tuned to the sensory poetry of everyday life.",
+      "Your choices keep coming back to soft light, layered texture, and quiet neutrals. That pattern suggests you prefer atmosphere over display — you're not dressing a room for an audience, you're making it feel comfortable to be in. Because you rarely use strong colour, the few accents you do include carry real weight, and people notice them precisely because everything around them is calm.",
     suggestions: [
-      "Introduce one heirloom object — brass worn soft by time, a pearl you return to, or silver with a story. Let it be the anchor your softer pieces need.",
-      "Layer two tonal neutrals before adding any accent colour. The restraint itself becomes the statement — a study in patience.",
-      "Place a single unexpected antique in an otherwise modern composition. That dialogue between eras is where your aesthetic lives most fully.",
+      "Introduce one grounding object in a deeper tone — a walnut frame, a brass candlestick — so the soft palette has somewhere to rest against.",
+      "Layer two tonal neutrals (ivory over bone, for example) before adding any accent colour. The depth comes from the layering, not the hue.",
+      "Put one piece with visible history beside your modern items. The contrast between eras is what keeps the room from feeling one-note.",
     ],
   },
   {
     identity: "Modern Nostalgic",
-    tagline: "You are a curator of quiet detail and quiet luxury — each decision deliberate, each object a conversation.",
+    tagline: "Weighty textures, muted tones, and pieces with a past — substance over spectacle.",
     palette: [
       { name: "Bone", hex: "#EFE8DD" },
       { name: "Camel", hex: "#C8A97E" },
@@ -41,16 +41,16 @@ const IDENTITIES = [
     ],
     traits: ["Refined", "Grounded", "Discerning", "Warm", "Understated"],
     signature:
-      "There is an intentional stillness in the way you compose your surroundings. Weighty textiles and weathered metals speak to a person who values substance over spectacle — who understands that true luxury is felt, not displayed. Your eye for proportion is nearly architectural, and the restraint you exercise in your palette creates a quiet drama that reveals itself slowly. You collect with the patience of a gallerist, each addition earning its place through careful consideration of how it sits with everything else in the room.",
+      "You're drawn to weighty textures, weathered finishes, and muted tones, which points to a preference for substance over spectacle. Nothing in your composition asks for attention all at once; instead, the room reveals itself piece by piece. That patience — letting each object earn its place — is why your spaces feel settled rather than staged.",
     suggestions: [
-      "Swap one glossy surface for a matte, tactile alternative — unlacquered brass, raw linen, honed stone. Let your fingers do the deciding.",
-      "Repeat a single silhouette across three different scales. The rhythm it creates will be more powerful than any colour could be.",
-      "Leave one wall completely empty. Not as an oversight, but as a deliberate composition of negative space — a breath your room needs.",
+      "Swap one glossy surface for a matte, tactile alternative — unlacquered brass, raw linen, honed stone. Your hand will find it before your eye does.",
+      "Repeat a single silhouette at three different scales. The repetition creates rhythm without adding anything new.",
+      "Leave one wall deliberately empty. Negative space does the work of a purchase, and it costs nothing.",
     ],
   },
   {
     identity: "Dark Academia Muse",
-    tagline: "Candlelight, marginalia, and the perfume of old books — your aesthetic is a love letter to the studied life.",
+    tagline: "Deep tones, aged materials, and dim, warm light — a space for long, focused evenings.",
     palette: [
       { name: "Ink", hex: "#1E1A17" },
       { name: "Oxblood", hex: "#5C1F1F" },
@@ -58,13 +58,13 @@ const IDENTITIES = [
       { name: "Forest", hex: "#2E3B2A" },
       { name: "Parchment", hex: "#D9C9A8" },
     ],
-    traits: ["Cerebral", "Devoted", "Mysterious", "Reverent", "Meticulous"],
+    traits: ["Cerebral", "Meticulous", "Devoted", "Reserved", "Magnetic"],
     signature:
-      "Your world is one of layered shadows and borrowed light — a chiaroscuro where every object carries the weight of its own history. You are drawn to the patina of time: worn leather, pages softened by hands, brass dulled to a honey glow. There is a ritual quality to your choices; nothing is accidental. Each texture, each dim corner, each scent carries meaning. You inhabit your spaces the way one inhabits a living archive — every object a reference, every shadow a footnote, and the quiet is full of stories waiting to be told.",
+      "You consistently choose deep tones, aged materials, and warm, low light. That combination suggests you want a space that helps you concentrate rather than perform — the lighting is set for reading, the surfaces for slow, careful work. The effect isn't decorative; it's functional. You're building an environment that rewards attention and punishes distraction.",
     suggestions: [
-      "Add one handwritten element — a note tucked into a frame, a label on a drawer, a monogram carved into a surface. The personal mark transforms the object.",
-      "Layer three distinct textures — wool's weight, leather's grain, paper's fragility. The friction between them creates the atmosphere you're seeking.",
-      "Edit your palette to two colours and one metal. The discipline will clarify everything. Let the absence of colour speak as loudly as the colours themselves.",
+      "Lower and warm your lighting — a single amber lamp beats overhead light if you want the atmosphere you're clearly after.",
+      "Add one handmade or handwritten element — a note in a frame, a label on a drawer. The human mark is what keeps the room from feeling like a set.",
+      "Edit each surface down to two colours and one metal. Restraint here is what makes the depth you love actually visible.",
     ],
   },
 ];
@@ -85,63 +85,89 @@ export type EvolveDirection = {
 
 export const EVOLVE_DIRECTIONS: EvolveDirection[] = [
   {
-    id: "quiet-luxury",
-    name: "Quiet Luxury",
-    description: "Understated refinement. The absence of logos, the presence of intention. Wool, cashmere, bone china, and the quiet confidence of knowing less is more.",
-    accent: "#C8A97E",
-  },
-  {
-    id: "soft-muse",
-    name: "Soft Muse",
-    description: "Dreamy, romantic, gently luminous. Linens in pearl and blush, filtered daylight, dried florals, and the poetry of soft edges.",
-    accent: "#E9C7C1",
-  },
-  {
     id: "dark-academia",
     name: "Dark Academia",
-    description: "Scholarly, atmospheric, rich with history. Leather-bound volumes, amber light, tweed and velvet, the romance of the studied life.",
+    description: "Intellectual, vintage, literary, mysterious.",
     accent: "#5C1F1F",
   },
   {
-    id: "japandi",
-    name: "Japandi",
-    description: "Wabi-sabi meets Scandinavian calm. Muted earth tones, handcrafted ceramics, imperfect beauty, and the art of intentional emptiness.",
-    accent: "#8B8B78",
+    id: "quiet-luxury",
+    name: "Quiet Luxury",
+    description: "Refined, timeless, understated elegance.",
+    accent: "#C8A97E",
   },
   {
     id: "old-money",
     name: "Old Money",
-    description: "Inherited taste, not purchased style. Classic silhouettes, navy and cream, weathered leather, heirloom silver, and the grace of things that endure.",
+    description: "Classic, heritage-inspired, polished.",
     accent: "#2B4C6B",
   },
   {
-    id: "modern-minimalism",
-    name: "Modern Minimalism",
-    description: "Edited, precise, architectural. Monochrome foundations, sculptural forms, pure lines, and the radical luxury of empty space.",
+    id: "y2k-revival",
+    name: "Y2K Revival",
+    description: "Playful, nostalgic, futuristic — early-2000s inspired.",
+    accent: "#C9A0DC",
+  },
+  {
+    id: "coquette",
+    name: "Coquette",
+    description: "Romantic, delicate, feminine, dreamy.",
+    accent: "#E9A8B8",
+  },
+  {
+    id: "streetwear",
+    name: "Streetwear",
+    description: "Expressive, oversized silhouettes, urban influence.",
     accent: "#4A4A4A",
+  },
+  {
+    id: "soft-muse",
+    name: "Soft Muse",
+    description: "Dreamy, gentle, pastel, artistic.",
+    accent: "#E9C7C1",
+  },
+  {
+    id: "minimalist",
+    name: "Minimalist",
+    description: "Clean, intentional, calm, refined.",
+    accent: "#8A9096",
   },
   {
     id: "vintage",
     name: "Vintage",
-    description: "Curated nostalgia with a contemporary eye. Mid-century silhouettes, patina and aged finishes, flea-market finds, and stories woven into every piece.",
+    description: "Nostalgic, timeless, collected pieces.",
     accent: "#B58B45",
   },
   {
-    id: "organic-modern",
-    name: "Organic Modern",
-    description: "Nature refined through a contemporary lens. Raw linen, weathered stone, sculptural branches, and the texture of the natural world in modern forms.",
-    accent: "#7A9B7A",
+    id: "other",
+    name: "Others",
+    description: "A world of your own — tell Muse what you're drawn to.",
+    accent: "#7A7A7A",
   },
 ];
 
 const EVO_KEY = "oryon.evolution";
-export function saveEvolution(ids: string[]) {
-  try { localStorage.setItem(EVO_KEY, JSON.stringify(ids)); } catch {}
+
+export function saveEvolution(ids: string[], custom: string[] = []) {
+  try { localStorage.setItem(EVO_KEY, JSON.stringify({ ids, custom })); } catch {}
 }
+
 export function loadEvolution(): string[] {
   try {
     const v = localStorage.getItem(EVO_KEY);
-    return v ? (JSON.parse(v) as string[]) : [];
+    if (!v) return [];
+    const parsed = JSON.parse(v);
+    // Backward compatible with the old plain-array format
+    return Array.isArray(parsed) ? parsed : Array.isArray(parsed?.ids) ? parsed.ids : [];
+  } catch { return []; }
+}
+
+export function loadEvolutionCustom(): string[] {
+  try {
+    const v = localStorage.getItem(EVO_KEY);
+    if (!v) return [];
+    const parsed = JSON.parse(v);
+    return Array.isArray(parsed?.custom) ? parsed.custom : [];
   } catch { return []; }
 }
 
@@ -226,15 +252,20 @@ export function incrementGuideDirectMessages(): number {
  *                         references images or uploads; when visual
  *                         context would help, it asks descriptive
  *                         questions and continues from the answers.
+ *
+ * Voice: concise, observant, conversational. Replies are structured as
+ * Observation → Insight → Direction, with an occasional curator note
+ * ("Muse moment") rendered as a highlight. No essays.
  * ─────────────────────────────────────────────────────────────────────── */
 
 export type MuseMode = "study" | "dialogue";
 
 export const STUDY_PROMPTS = [
-  "Tell me about my aesthetic signature",
-  "How can I refine my palette?",
-  "What should I look for this season?",
-  "Suggest one meaningful change",
+  "Make this identity more wearable",
+  "Build a room around this aesthetic",
+  "Find signature pieces",
+  "Explore another direction",
+  "Refine my visual identity",
 ];
 
 export const DIALOGUE_PROMPTS = [
@@ -244,6 +275,34 @@ export const DIALOGUE_PROMPTS = [
   "How do I find my signature style?",
 ];
 
+/** A structured reply — short editorial sections, plus an occasional
+ *  highlighted "Muse note". */
+export type MuseSection = { label: string; text: string };
+export type MuseReply = { sections: MuseSection[]; moment?: string };
+
+const CATEGORY_LABELS: Record<string, string> = {
+  outfit: "Outfit",
+  moodboard: "Moodboard",
+  room: "Room",
+  workspace: "Workspace",
+  social: "Social",
+  photo: "Photo",
+};
+
+/** The categories chosen at the start of the study flow. */
+export function loadCategories(): string[] {
+  try {
+    const v = sessionStorage.getItem("oryon.categories");
+    if (!v) return [];
+    const parsed = JSON.parse(v);
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
+  } catch { return []; }
+}
+
+export function categoryNames(ids: string[]): string[] {
+  return ids.map((id) => CATEGORY_LABELS[id] ?? id);
+}
+
 function evolutionNames(ids: string[]): string[] {
   return ids
     .map((id) => EVOLVE_DIRECTIONS.find((d) => d.id === id))
@@ -252,230 +311,428 @@ function evolutionNames(ids: string[]): string[] {
 }
 
 /** MODE 1 — follow-up conversation anchored to a completed reading. */
-export function studyReply(input: string, r: AestheticResult, evo: string[]): string {
-  const { identity, palette, signature, suggestions } = r;
+export function studyReply(
+  input: string,
+  r: AestheticResult,
+  evo: string[] = [],
+  custom: string[] = [],
+  categories: string[] = [],
+  context: string[] = []
+): MuseReply {
+  const { identity, palette, suggestions } = r;
   const low = input.toLowerCase();
-  const evoNames = evolutionNames(evo);
-  const evoContext = evoNames.length
-    ? `I know you are looking to move toward ${evoNames.join(", ")}. `
-    : "";
+  const evoNames = [...evolutionNames(evo), ...custom];
+  const catNames = categoryNames(categories);
+  const studied = catNames.length > 0 ? `, studied through your ${catNames.join(", ")}` : "";
+  const evoNote = evoNames.length
+    ? `You chose ${evoNames.join(", ")} as your direction — it shares your restraint, so this is about adding, not replacing. `
+    : `Your base is consistent — the rarest starting point for change. `;
 
   // Palette
   if (low.includes("palette") || low.includes("colour") || low.includes("color") || low.includes("shade") || low.includes("tone")) {
-    return (
-      `Let's sit with your palette for a moment. The colours in your reading — ${palette.map((p) => p.name).join(", ")} — are not coincidental. ` +
-      `They speak to the ${identity.toLowerCase()} sensibility: a preference for tones that feel lived-in, ` +
-      `colours that don't demand attention but earn it over time.\n\n` +
-      `What I notice in your reading is the conversation between your lightest and darkest tones — a quiet tension, ` +
-      `a narrative arc within the palette. To deepen it, introduce one grounding note: a deep walnut, ` +
-      `an inky charcoal, or a burnished bronze. Something that anchors the softness and gives it a spine.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Your palette keeps returning to ${palette.slice(0, 3).map((p) => p.name).join(", ")} — muted, warm, unhurried.`,
+        },
+        {
+          label: "Insight",
+          text: `That's a repeated choice, not a coincidence. Restraint is exactly why your few accents land so well.`,
+        },
+        {
+          label: "Direction",
+          text: `Add one deep anchor — walnut, charcoal, bronze — so the soft tones finally have contrast. Do you repeat these tones in clothes too?`,
+        },
+      ],
+      moment: "The tones you repeat are the tones you trust.",
+    };
   }
 
-  // Evolution & season
-  if (low.includes("evolve") || low.includes("season") || low.includes("change") || low.includes("refresh") || low.includes("update")) {
-    const evoGuidance = evoNames.length
-      ? `Given that you are drawn toward ${evoNames.join(" and ")}, I would suggest ` +
-        `looking for where your current ${identity.toLowerCase()} sensibility naturally ` +
-        `overlaps with those influences. That intersection — where you already are and where you ` +
-        `want to go — is the most fertile ground for evolution.\n\n`
-      : "";
-    return (
-      `${evoGuidance}` +
-      `Evolution, for a ${identity.toLowerCase()}, is never about reinvention — it is about refinement. ` +
-      `Keep eighty percent of what your instincts have already chosen for you. That foundation is yours. ` +
-      `Then introduce one new texture and one unfamiliar silhouette, and live with them for a week. ` +
-      `Notice which one your eye returns to — that return is your answer. The season doesn't demand a new ` +
-      `you; it simply asks you to notice what you already are.`
-    );
+  // Evolution & direction
+  if (low.includes("evolve") || low.includes("season") || low.includes("change") || low.includes("refresh") || low.includes("update") || low.includes("direction") || low.includes("explore")) {
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `You're starting from a consistent base — the rarest starting point for change.`,
+        },
+        {
+          label: "Insight",
+          text: evoNote + `One deliberate change reads as evolution; five read as a new persona.`,
+        },
+        {
+          label: "Direction",
+          text: `Change one texture or silhouette this week. If your eye keeps returning to it, that's your direction. Where would you start?`,
+        },
+      ],
+    };
   }
 
-  // Shopping
-  if (low.includes("shop") || low.includes("buy") || low.includes("list") || low.includes("purchase") || low.includes("acquire")) {
+  // Signature pieces & shopping
+  if (low.includes("shop") || low.includes("buy") || low.includes("list") || low.includes("purchase") || low.includes("acquire") || low.includes("piece")) {
     const accent = palette[1]?.name ?? "blush";
-    const evoNote = evoNames.length
-      ? `Given your interest in ${evoNames.join(" and ")}, prioritise pieces that ` +
-        `bridge your current ${identity.toLowerCase()} sensibility with those influences. ` +
-        `The most lasting acquisitions speak to both where you are and where you are going.\n\n`
-      : "";
-    return (
-      `${evoNote}` +
-      `A considered capsule, curated from your reading:\n\n` +
-      `• An unlacquered brass object — a candlestick, a small dish — that will patina with your days\n` +
-      `• A linen throw in bone or ivory — texture that asks to be touched\n` +
-      `• One antique frame, emptiness inside — a composition waiting for the right thing\n` +
-      `• A slim taper in ${accent}, lit at the same hour each evening\n\n` +
-      `Nothing more for a month. Let each piece arrive slowly, and notice how it changes the room before you add another.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `The pieces that fit your reading are the ones that age well.`,
+        },
+        {
+          label: "Insight",
+          text: `Buy where your current taste and your direction overlap — that's what still works in five years.`,
+        },
+        {
+          label: "Direction",
+          text: `A short list:\n• One brass or aged-metal object — it patinas with you\n• A natural-fibre throw in a palette tone\n• One empty antique frame\n• A candle in ${accent} for the evenings\n\nThat's the month. What gap are you really filling?`,
+        },
+      ],
+    };
   }
 
   // Room & space
   if (low.includes("room") || low.includes("space") || low.includes("home") || low.includes("decor")) {
-    const evoNote = evoNames.length
-      ? `As you move toward ${evoNames.join(" and ")}, let one corner of the room reflect that direction ` +
-        `before you commit the entire space — evolution through layering, not replacement.\n\n`
-      : "";
-    return (
-      `${evoNote}` +
-      `Before you add anything to the room, remove one thing from every surface, then step back. ` +
-      `Move your lamp lower; let one corner remain in deeper shadow. Rearrange before you buy — ` +
-      `the same objects in a new conversation can feel like an entirely different room.\n\n` +
-      `Your ${identity.toLowerCase()} reads best when there is room to breathe. Clear the space, and it ` +
-      `will ask for exactly what it needs.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Remove one thing from every surface before adding anything.`,
+        },
+        {
+          label: "Insight",
+          text: `For your reading, light does more than objects — one low lamp changes the whole room.`,
+        },
+        {
+          label: "Direction",
+          text: `Once it's edited down, the room will tell you what it wants. What bothers you most in there?`,
+        },
+      ],
+      moment: "The most honest detail in a room is usually the one you stopped noticing.",
+    };
   }
 
-  // Wardrobe
-  if (low.includes("outfit") || low.includes("wear") || low.includes("dress") || low.includes("wardrobe") || low.includes("clothes")) {
-    return (
-      `Build your next outfit around one hero texture — the thing your hand wants to touch first. ` +
-      `Stay within the ${palette.map((p) => p.name).join(", ")} your reading already gave you. ` +
-      `The contrast you are looking for comes not from a new colour but from proportion: a looser ` +
-      `silhouette with a structured one, a soft texture against a precise line.\n\n` +
-      `Your ${identity.toLowerCase()} wardrobe is at its most compelling when every piece belongs ` +
-      `to the same story, even across different seasons.`
-    );
+  // Wardrobe & wearability
+  if (low.includes("outfit") || low.includes("wear") || low.includes("wearable") || low.includes("dress") || low.includes("wardrobe") || low.includes("clothes")) {
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Repeat your palette — ${palette.slice(0, 3).map((p) => p.name).join(", ")} — and change the proportions instead.`,
+        },
+        {
+          label: "Insight",
+          text: `Shape, not colour, creates the contrast you're drawn to: loose against structured, soft against precise.`,
+        },
+        {
+          label: "Direction",
+          text: `What do you reach for on a normal morning? That habit is your real style.`,
+        },
+      ],
+    };
   }
 
-  // Identity / signature
-  if (low.includes("identity") || low.includes("signature") || low.includes("style") || low.includes("aesthetic") || low.includes("who")) {
-    return (
-      `Your aesthetic signature, as I read it: ${signature}\n\n` +
-      `What draws you to repeat this feeling across different spaces and moments? That repetition ` +
-      `is not accident — it is your visual instinct speaking clearly.`
-    );
+  // Identity / signature / refine
+  if (low.includes("identity") || low.includes("signature") || low.includes("style") || low.includes("aesthetic") || low.includes("who") || low.includes("refine")) {
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `You keep returning to the same tones, textures, and feeling${studied} — that's your signature, and it's remarkably consistent.`,
+        },
+        {
+          label: "Insight",
+          text: `Consistency isn't indecision. It's a preference your eye learned and kept.`,
+        },
+        {
+          label: "Direction",
+          text: `To refine it: name one thing you'd remove and one thing you'd add. What's behind the consistency — a place, a person, a period?`,
+        },
+      ],
+      moment: "Consistency across spaces isn't indecision. It's preference.",
+    };
   }
 
   // Suggestions
   if (low.includes("suggest") || low.includes("advice") || low.includes("help") || low.includes("recommend") || low.includes("what should")) {
-    return (
-      `Something to consider: ${suggestions[0]}\n\n` +
-      `${suggestions[1] ?? ""}\n\n` +
-      `Try one this week. Not all three. The magic is in the singular, intentional act — not in the list.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Three changes, in order of impact:`,
+        },
+        {
+          label: "Direction",
+          text: `• ${suggestions[0]}\n• ${suggestions[1] ?? ""}\n• ${suggestions[2] ?? ""}`,
+        },
+        {
+          label: "Insight",
+          text: `Do just one this week — a single change tells you more than a list. Which feels most doable?`,
+        },
+      ],
+    };
   }
 
   // Inspiration & mood
   if (low.includes("inspire") || low.includes("mood") || low.includes("feeling") || low.includes("feel")) {
-    return (
-      `The most inspiring spaces and outfits are not the most curated ones; they are the ones that feel ` +
-      `inhabited — where patina, slight asymmetry, and the object that doesn't quite match tell a story only you could tell.\n\n` +
-      `For your ${identity.toLowerCase()} sensibility, the richest inspiration lies in what you already pass by daily. ` +
-      `Look at your space with fresh eyes tonight and notice which object or corner makes you pause. That pause is your inspiration.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Your best inspiration is already in your saved images and usual spaces — not in magazines.`,
+        },
+        {
+          label: "Insight",
+          text: `Whatever makes you pause a second longer is the honest signal of your taste.`,
+        },
+        {
+          label: "Direction",
+          text: `What caught your eye most recently?`,
+        },
+      ],
+    };
   }
 
   // Texture & material
   if (low.includes("texture") || low.includes("material") || low.includes("fabric") || low.includes("surface")) {
-    return (
-      `Texture is where your ${identity.toLowerCase()} sensibility speaks most clearly — surfaces that have ` +
-      `a relationship with time, that soften and patina and age gracefully.\n\n` +
-      `Layering three distinct materials in your next composition — one matte and weighty, one with a slight ` +
-      `sheen, one with visible history — creates the atmosphere you are instinctively reaching for.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Texture is your most consistent instinct — wool, linen, leather, stone.`,
+        },
+        {
+          label: "Insight",
+          text: `Layer three — one weighty, one with sheen, one with history — and depth appears without new objects.`,
+        },
+        {
+          label: "Direction",
+          text: `Which materials do you already own and love?`,
+        },
+      ],
+    };
   }
 
-  // Fallback — always anchored to the reading, opens a reflective thread
-  return (
-    `${evoContext}` +
-    `Returning to your reading — ${identity}. Tell me what drew you to explore this today: a room you are ` +
-    `reimagining, a season you are preparing for, a way of dressing you feel ready to understand more fully. ` +
-    `The more specific you are, the more I can offer in return.`
-  );
+  // Fallback — warm, open-ended, references the reading
+  return {
+    sections: [
+      {
+        label: "Observation",
+        text: `Let's work with your reading — ${identity}${studied}.`,
+      },
+      {
+        label: "Direction",
+        text: `Tell me one real detail: a room you're changing, a season ahead, a piece you keep looking at.`,
+      },
+    ],
+  };
 }
 
 /** MODE 2 — a purely textual editorial conversation. */
-export function dialogueReply(input: string, evo: string[], context: string[]): string {
+export function dialogueReply(
+  input: string,
+  evo: string[] = [],
+  custom: string[] = [],
+  categories: string[] = [],
+  context: string[] = []
+): MuseReply {
   const low = input.toLowerCase();
-  const evoNames = evolutionNames(evo);
-  const evoNote = evoNames.length
-    ? `I also hear you are curious about ${evoNames.join(", ")} — I will keep that thread with us as we talk. `
-    : "";
-  const listening = context.length > 0
-    ? "I have been listening to what you have described, and a point of view is beginning to take shape. "
-    : "";
+  const evoNames = [...evolutionNames(evo), ...custom];
+  const evoNote = evoNames.length ? `You mentioned ${evoNames.join(", ")} — noted, keeping that thread. ` : "";
+  const listening = context.length > 0 ? "Thanks for sharing that. " : "";
 
   // Colour
   if (low.includes("palette") || low.includes("colour") || low.includes("color") || low.includes("shade") || low.includes("tone")) {
-    return (
-      `Let's find your colours together. Tell me the three shades you reach for most often — in what you wear, ` +
-      `in the rooms you love, even in the small objects you keep near you. Once you name them, we can look at ` +
-      `what they have in common and build a palette from there.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Tell me the three shades you keep gravitating toward — in clothes, rooms, saved photos.`,
+        },
+        {
+          label: "Insight",
+          text: `There's a pattern in them; once we see it, your palette becomes a choice, not an accident.`,
+        },
+        {
+          label: "Direction",
+          text: `What comes to mind first?`,
+        },
+      ],
+      moment: "The colours you keep saving are a message to yourself.",
+    };
   }
 
   // Room & space
   if (low.includes("room") || low.includes("space") || low.includes("home") || low.includes("decor")) {
-    return (
-      `Let's reimagine your room. Begin with this: what does it currently miss? Not what you think it should ` +
-      `have — what you notice is absent when you stand in the doorway. Describe that feeling of absence, ` +
-      `and I will help you answer it.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `What does your room currently miss? Not what it *should* have — what's actually absent.`,
+        },
+        {
+          label: "Insight",
+          text: `That absence is the real brief.`,
+        },
+        {
+          label: "Direction",
+          text: `Tell me about the light, the hour you use it, the one thing that annoys you.`,
+        },
+      ],
+    };
   }
 
   // Wardrobe
-  if (low.includes("outfit") || low.includes("wear") || low.includes("dress") || low.includes("wardrobe") || low.includes("clothes")) {
-    return (
-      `Tell me about the pieces you wear most often — not the occasion pieces, the ones that feel like you ` +
-      `without thinking. Once I know what you keep returning to, we can find the thread that runs through all of it.`
-    );
+  if (low.includes("outfit") || low.includes("wear") || low.includes("wearable") || low.includes("dress") || low.includes("wardrobe") || low.includes("clothes")) {
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Tell me what you reach for most — not occasion pieces, the automatic ones.`,
+        },
+        {
+          label: "Insight",
+          text: `They win for a reason, and that reason is the core of your style.`,
+        },
+        {
+          label: "Direction",
+          text: `Describe them and I'll show you the thread.`,
+        },
+      ],
+    };
   }
 
   // Feeling & mood
   if (low.includes("feeling") || low.includes("mood") || low.includes("inspire") || low.includes("feel")) {
-    return (
-      `What feeling are you trying to create? Name the emotion before the object — how you want to feel when ` +
-      `you walk into the room or leave the house. When the feeling is clear, the choices almost make themselves.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `How do you want to feel — entering the room, or leaving the house?`,
+        },
+        {
+          label: "Insight",
+          text: `Name the feeling first; the choices follow.`,
+        },
+        {
+          label: "Direction",
+          text: `What's the feeling you're after?`,
+        },
+      ],
+    };
   }
 
   // Evolution & season
-  if (low.includes("evolve") || low.includes("season") || low.includes("change") || low.includes("refresh") || low.includes("update")) {
-    return (
-      `${evoNote}` +
-      `Evolution is rarely about replacing everything — it is about noticing what you already reach for and ` +
-      `giving it more room. Describe the direction you are curious about: a feeling, a place, a person whose ` +
-      `style you admire. Describe it in your own words, and we will begin there.`
-    );
+  if (low.includes("evolve") || low.includes("season") || low.includes("change") || low.includes("refresh") || low.includes("update") || low.includes("direction") || low.includes("explore")) {
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `${listening}${evoNote}Describe the direction in your own words — a feeling, a place, someone whose taste you admire.`,
+        },
+        {
+          label: "Insight",
+          text: `A describable direction is actionable; a vague one just makes Pinterest boards.`,
+        },
+        {
+          label: "Direction",
+          text: `What does the change actually look like?`,
+        },
+      ],
+    };
   }
 
   // Shopping
-  if (low.includes("shop") || low.includes("buy") || low.includes("list") || low.includes("purchase") || low.includes("acquire")) {
-    return (
-      `Before you buy anything, answer one question: what gap is this piece filling? If the answer is a feeling — ` +
-      `calm, warmth, confidence — that is worth pursuing. If it is only a trend, let it pass. Tell me what you are ` +
-      `looking for and what it should do for you, and I will help you choose with intention.`
-    );
+  if (low.includes("shop") || low.includes("buy") || low.includes("list") || low.includes("purchase") || low.includes("acquire") || low.includes("piece")) {
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Before you buy: what is this piece actually for?`,
+        },
+        {
+          label: "Insight",
+          text: `A feeling — calm, confidence, warmth — earns the purchase. "I like it" can wait a week.`,
+        },
+        {
+          label: "Direction",
+          text: `What are you shopping for?`,
+        },
+      ],
+    };
   }
 
   // Texture & material
   if (low.includes("texture") || low.includes("material") || low.includes("fabric") || low.includes("surface")) {
-    return (
-      `Think of the surfaces you love to touch — linen, leather, stone, wool, worn wood. Name the three that make ` +
-      `you pause. Layer those three materials together and you will have a composition that feels unmistakably yours.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Name three surfaces you're drawn to touch — linen, leather, stone, worn wood.`,
+        },
+        {
+          label: "Insight",
+          text: `That trio is usually your whole material vocabulary.`,
+        },
+        {
+          label: "Direction",
+          text: `Which three come to mind?`,
+        },
+      ],
+    };
   }
 
   // Identity / signature
   if (low.includes("identity") || low.includes("signature") || low.includes("style") || low.includes("aesthetic") || low.includes("who")) {
-    return (
-      `Your signature is still being written — that is the beauty of it. Describe the things you return to: a shape, ` +
-      `a colour, a ritual, a piece you have owned for years. The pattern among them is your signature, and I can help you read it.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Your signature is forming — that's the interesting part.`,
+        },
+        {
+          label: "Insight",
+          text: `The things you return to — a shape, a colour, a ritual — are the pattern.`,
+        },
+        {
+          label: "Direction",
+          text: `What keeps coming back for you?`,
+        },
+      ],
+      moment: "The things you keep returning to are rarely random.",
+    };
   }
 
   // Suggestions
   if (low.includes("suggest") || low.includes("advice") || low.includes("help") || low.includes("recommend") || low.includes("what should")) {
-    return (
-      `Begin with one deliberate choice this week: a single object to move, a single colour to wear, a single corner ` +
-      `to clear. Tell me which of those feels most true to you right now, and I will guide you through it.`
-    );
+    return {
+      sections: [
+        {
+          label: "Observation",
+          text: `Pick one change for this week: one object to move, one colour to wear, one corner to clear.`,
+        },
+        {
+          label: "Insight",
+          text: `Do nothing else. Your reaction is the data.`,
+        },
+        {
+          label: "Direction",
+          text: `What feels like the most honest first step?`,
+        },
+      ],
+    };
   }
 
-  // Fallback — confident, open-ended, built on what they've shared
-  return (
-    `${listening}${evoNote}` +
-    `Tell me more — a room you are reimagining, the feeling you want to walk into, or the pieces you return to ` +
-    `again and again. The more specific you are, the more I can help you shape it.`
-  );
+  // Fallback — warm, open-ended, built on what they've shared
+  return {
+    sections: [
+      {
+        label: "Observation",
+        text: `${listening}${evoNote}I'd love to go deeper.`,
+      },
+      {
+        label: "Direction",
+        text: `Tell me about a room you're reimagining, a feeling you want, or a piece you keep coming back to.`,
+      },
+    ],
+  };
 }

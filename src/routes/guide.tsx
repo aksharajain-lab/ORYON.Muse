@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import {
   loadResult,
   loadEvolution,
+  loadEvolutionCustom,
+  loadCategories,
+  categoryNames,
   EVOLVE_DIRECTIONS,
   getGuideAnalysisMessages,
   incrementGuideAnalysisMessages,
@@ -16,6 +19,7 @@ import {
   STUDY_PROMPTS,
   DIALOGUE_PROMPTS,
   type AestheticResult,
+  type MuseReply,
 } from "@/lib/aesthetic";
 import { Send, Sparkles } from "lucide-react";
 
@@ -32,18 +36,43 @@ export const Route = createFileRoute("/guide")({
 });
 
 const ANALYSIS_LIMIT_MSG =
-  "Your Muse has completed this reading. The thread of this conversation has been " +
-  "thoughtfully noted, and every insight you've shared has shaped your evolving portrait. " +
-  "To continue your journey — with unlimited readings, saved profiles, and deeper guidance " +
-  "— the next chapter awaits with a personal Muse profile. Until then, the quiet is yours to sit with.";
+  "We've reached the end of this reading's conversation. Everything you've shared has been " +
+  "noted and kept in mind. To keep going — with more readings, a saved profile, and a guide " +
+  "that remembers you — create your own Muse profile. Until then, sit with what you've learned.";
 
 const DIRECT_LIMIT_MSG =
-  "Thank you for sharing your thoughts with Muse. You have reached the gentle end " +
-  "of this conversation. Your curiosities have been heard, and they linger in the margins. " +
-  "To continue your exploration — with deeper guidance, saved discoveries, and your personal " +
-  "curator — create your personal Muse profile. Your aesthetic is still unfolding.";
+  "This conversation is wrapping up — I've enjoyed it. To go further, with image readings " +
+  "and a guide who remembers your taste, create your own Muse profile. Your aesthetic is " +
+  "still forming, and that's the interesting part.";
 
-type Msg = { id: string; role: "muse" | "you"; text: string };
+type Msg = { id: string; role: "muse" | "you"; text?: string; reply?: MuseReply };
+
+function MuseContent({ text, reply }: { text?: string; reply?: MuseReply }) {
+  if (reply) {
+    return (
+      <div className="space-y-2.5">
+        {reply.sections.map((s, i) => (
+          <div key={s.label} className="animate-msg-in" style={{ animationDelay: `${0.25 + i * 0.14}s` }}>
+            <p className="text-[8px] font-sans uppercase tracking-[0.3em] text-muted-foreground/70">
+              {s.label}
+            </p>
+            <p className="mt-1">{s.text}</p>
+          </div>
+        ))}
+        {reply.moment && (
+          <div
+            className="animate-msg-in relative rounded-lg border border-foreground/10 bg-foreground/[0.04] px-4 py-2.5 pl-8"
+            style={{ animationDelay: `${0.25 + reply.sections.length * 0.14}s` }}
+          >
+            <span className="absolute left-3 top-2.5 text-[10px] text-muse">✦</span>
+            <p className="font-serif italic leading-relaxed text-foreground/90">{reply.moment}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return <>{text}</>;
+}
 
 function GuidePage() {
   const [r, setR] = useState<AestheticResult | null>(null);
@@ -63,17 +92,22 @@ function GuidePage() {
     if (savedCount >= (isAnalysis ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT)) {
       setLimitReached(true);
     }
-    const evoNames = evo
-      .map((id) => EVOLVE_DIRECTIONS.find((d) => d.id === id))
-      .filter(Boolean)
-      .map((d) => d!.name);
+    const evoNames = [
+      ...evo
+        .map((id) => EVOLVE_DIRECTIONS.find((d) => d.id === id))
+        .filter(Boolean)
+        .map((d) => d!.name),
+      ...loadEvolutionCustom(),
+    ];
+    const catNames = categoryNames(loadCategories());
+    const studied = catNames.length > 0 ? `, studied through your ${catNames.join(", ")}` : "";
     setR(v);
     const limitMsg = v ? ANALYSIS_LIMIT_MSG : DIRECT_LIMIT_MSG;
     const greeting = v
       ? evoNames.length > 0
-        ? `I have been sitting with your reading — ${v.identity}. And I see you are curious about ${evoNames.join(", ")}. There is something compelling about that combination — the thread that runs from where you are to where you want to go. Shall we explore where those worlds meet?`
-        : `I have been sitting with your reading — ${v.identity}. There is a particular quality to the way you see the world, and I would love to explore it with you. Shall we begin with your palette, the spaces you inhabit, or the way you move through your day?`
-      : `Good to meet you. Tell me about the last space, outfit, or object that stopped you — a detail that held your attention longer than expected. The specific things you notice are where your aesthetic lives.`;
+        ? `Your reading came back as ${v.identity}${studied}, and you're curious about ${evoNames.join(", ")} — a useful combination: the foundation's there, we're adding to it. Which part feels most like you right now — the colours, the textures, or the atmosphere?`
+        : `Your reading came back as ${v.identity}${studied}. There's a lot to work with. Which part feels most like you — the colours, the textures, or the atmosphere?`
+      : `Good to meet you. Tell me about the last space, outfit, or object that stopped you. Those details are where your taste actually lives.`;
 
     const initial: Msg[] = [{ id: "m1", role: "muse", text: greeting }];
     if (savedCount >= (v ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT)) {
@@ -107,11 +141,14 @@ function GuidePage() {
     setInput("");
     setTyping(true);
     setTimeout(() => {
-      const context = msgs.filter((m) => m.role === "you").map((m) => m.text);
+      const context = msgs.filter((m) => m.role === "you").map((m) => m.text ?? "");
+      const evo = loadEvolution();
+      const custom = loadEvolutionCustom();
+      const cats = loadCategories();
       const answer = r
-        ? studyReply(t, r, loadEvolution())
-        : dialogueReply(t, loadEvolution(), [...context, t]);
-      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", text: answer }];
+        ? studyReply(t, r, evo, custom, cats, [...context, t])
+        : dialogueReply(t, evo, custom, cats, [...context, t]);
+      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", reply: answer }];
       if (newCount >= maxMsgs) {
         nextMsgs.push({ id: "limit", role: "muse", text: limitMsg });
       }
@@ -142,7 +179,7 @@ function GuidePage() {
         <div className="mt-6 flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-border/20 shadow-luxe">
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-5 sm:p-8">
             {msgs.map((m) => (
-              <div key={m.id} className={`flex ${m.role === "you" ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`animate-msg-in flex ${m.role === "you" ? "justify-end" : "justify-start"}`}>
                 {m.role === "muse" && (
                   <div className="mr-3 grid h-8 w-8 flex-none place-items-center rounded-full border border-border/30">
                     <span className="text-serif text-sm italic text-foreground/60">M</span>
@@ -155,19 +192,22 @@ function GuidePage() {
                       : "border border-border/20 text-foreground/85"
                   } ${m.role === "muse" ? "text-serif text-[1.02rem]" : ""}`}
                 >
-                  {m.text}
+                  <MuseContent text={m.text} reply={m.reply} />
                 </div>
               </div>
             ))}
             {typing && (
-              <div className="flex items-center gap-3">
+              <div className="animate-msg-in flex items-center gap-3">
                 <div className="grid h-8 w-8 place-items-center rounded-full border border-border/30">
                   <span className="text-serif text-sm italic text-foreground/60">M</span>
                 </div>
-                <div className="inline-flex gap-1 rounded-xl px-4 py-3">
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-foreground/40" />
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-foreground/40 [animation-delay:150ms]" />
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-foreground/40 [animation-delay:300ms]" />
+                <div className="inline-flex items-center gap-1.5 rounded-xl border border-border/20 px-4 py-3.5">
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-foreground/50" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-foreground/50 [animation-delay:150ms]" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-foreground/50 [animation-delay:300ms]" />
+                  <span className="ml-1 text-[8px] uppercase tracking-[0.3em] text-muted-foreground/70">
+                    reading
+                  </span>
                 </div>
               </div>
             )}
