@@ -35,6 +35,8 @@ function UploadPage() {
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [otherNote, setOtherNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -88,7 +90,10 @@ function UploadPage() {
     setImages((prev) => prev.filter((_, idx) => idx !== i));
 
   const proceed = () => {
-    if (images.length === 0) return;
+    // Respond immediately on the first click; never allow a second one.
+    if (images.length === 0 || submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     sessionStorage.setItem("oryon.image", images[0]);
     sessionStorage.setItem("oryon.images", JSON.stringify(images));
     nav({ to: "/analyzing" });
@@ -219,17 +224,33 @@ function UploadPage() {
         <div className="relative border-t border-border/30 bg-background/80 backdrop-blur-lg">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
             <p className="text-xs text-muted-foreground">
-              {images.length === 0
-                ? "Nothing stays on our servers — it lives on your device."
-                : `${images.length} of ${MAX_IMAGES} selected`}
+              {submitting
+                ? "Muse is preparing your visual reading…"
+                : images.length === 0
+                  ? "Nothing stays on our servers — it lives on your device."
+                  : `${images.length} of ${MAX_IMAGES} selected`}
             </p>
             <button
               onClick={proceed}
-              disabled={images.length === 0}
-              className="group inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={images.length === 0 || submitting}
+              aria-busy={submitting}
+              className="group inline-flex flex-none items-center gap-2.5 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Read my aesthetic
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              {submitting ? (
+                <>
+                  <span className="inline-flex items-center gap-1" aria-hidden>
+                    <span className="h-1 w-1 animate-pulse rounded-full bg-background/70" />
+                    <span className="h-1 w-1 animate-pulse rounded-full bg-background/70 [animation-delay:150ms]" />
+                    <span className="h-1 w-1 animate-pulse rounded-full bg-background/70 [animation-delay:300ms]" />
+                  </span>
+                  Preparing your reading…
+                </>
+              ) : (
+                <>
+                  Read my aesthetic
+                  <ArrowRight className="h-4 w-4 transition duration-300 group-hover:translate-x-0.5" />
+                </>
+              )}
             </button>
           </div>
         </div>

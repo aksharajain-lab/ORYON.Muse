@@ -16,11 +16,10 @@ export const Route = createFileRoute("/analyzing")({
 });
 
 const STEPS = [
-  "Studying the light in your frame",
-  "Sampling the palette beneath the palette",
-  "Naming the textures you gravitate toward",
-  "Listening for the silence between objects",
-  "Composing your Aesthetic DNA",
+  "Preparing your visual reading…",
+  "Observing your visual patterns…",
+  "Distilling your aesthetic language…",
+  "Creating your Visual Identity…",
 ];
 
 function Analyzing() {
@@ -43,7 +42,7 @@ function Analyzing() {
     if (blocked || getAnalysisUsed()) return;
     const image = sessionStorage.getItem("oryon.image") ?? undefined;
     const total = STEPS.length;
-    const per = 900;
+    const per = 1000;
     const id = setInterval(() => {
       setStep((s) => {
         if (s >= total - 1) {
