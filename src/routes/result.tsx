@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { loadResult, setAnalysisUsed, type AestheticResult } from "@/lib/aesthetic";
 import { ArrowRight, Download, Share2, Compass } from "lucide-react";
 
@@ -19,6 +20,37 @@ export const Route = createFileRoute("/result")({
 function ResultPage() {
   const nav = useNavigate();
   const [r, setR] = useState<AestheticResult | null>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
+  const [capturing, setCapturing] = useState(false);
+
+  // Export the share card as a PNG that matches the on-screen rendering exactly:
+  // same background, colours, typography, palette circles, and layout. Fonts and
+  // the (data-URL) background image are fully loaded before capture, reveal
+  // animations are frozen via the .capture-ready class, and the 2x pixel ratio
+  // keeps the download crisp on retina displays.
+  const exportCard = async () => {
+    if (!cardRef.current || capturing) return;
+    setCapturing(true);
+    try {
+      await document.fonts?.ready;
+      await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+      const pageBg = getComputedStyle(document.body).backgroundColor || "#ffffff";
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        backgroundColor: pageBg,
+        cacheBust: false,
+      });
+      const a = document.createElement("a");
+      a.download = `oryon-visual-identity-${(r?.identity ?? "reading").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+      a.href = dataUrl;
+      a.click();
+    } catch {
+      // Fall back to the browser's print-to-PDF if image capture is unavailable.
+      window.print();
+    } finally {
+      setCapturing(false);
+    }
+  };
 
   // NOTE: every hook must be declared before any conditional return —
   // calling hooks after an early return crashes React ("Rendered more
@@ -54,9 +86,12 @@ function ResultPage() {
       <section className="mx-auto max-w-5xl px-5 pt-8 pb-24 sm:pt-12">
 
         {/* ── The Share Card — an A4 editorial sheet ── */}
-        <article className="animate-reveal relative mx-auto max-w-sm overflow-hidden rounded-[1.25rem] border border-border/30 shadow-luxe sm:max-w-[30rem] sm:rounded-[1.5rem] print:max-w-none print:rounded-none print:border-0 print:shadow-none">
+        <article
+          ref={cardRef}
+          className={`share-card animate-reveal relative mx-auto max-w-sm overflow-hidden rounded-[1.25rem] border border-border/30 shadow-luxe sm:max-w-[30rem] sm:rounded-[1.5rem] print:max-w-none print:rounded-none print:border-0 print:shadow-none ${capturing ? "capture-ready" : ""}`}
+        >
           {/* Grain texture */}
-          <div className="pointer-events-none absolute inset-0 opacity-[0.012] mix-blend-overlay"
+          <div className="share-card-grain pointer-events-none absolute inset-0 opacity-[0.012] mix-blend-overlay"
             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`, backgroundSize: "96px 96px" }}
           />
 
@@ -186,11 +221,12 @@ function ResultPage() {
             Share your visual identity
           </button>
           <button
-            onClick={() => window.print()}
-            className="group inline-flex items-center gap-2 rounded-full border border-border/30 px-4 py-2.5 text-sm text-foreground/60 transition duration-300 hover:-translate-y-0.5 hover:text-foreground"
+            onClick={exportCard}
+            disabled={capturing}
+            className="group inline-flex items-center gap-2 rounded-full border border-border/30 px-4 py-2.5 text-sm text-foreground/60 transition duration-300 hover:-translate-y-0.5 hover:text-foreground disabled:cursor-wait disabled:opacity-60"
           >
             <Download className="h-3.5 w-3.5 transition duration-300 group-hover:translate-y-0.5" />
-            Save
+            {capturing ? "Preparing…" : "Save"}
           </button>
           <Link
             to="/upload"

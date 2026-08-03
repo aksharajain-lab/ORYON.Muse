@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useState } from "react";
 import { ArrowRight, Home, Shirt, Layout, User, Briefcase, Sparkles, Check } from "lucide-react";
+import { clearStudy } from "@/lib/aesthetic";
 
 export const Route = createFileRoute("/begin")({
   head: () => ({
@@ -49,6 +50,9 @@ function BeginPage() {
       setWarn(true);
       return;
     }
+    // A new study always starts from a clean slate — the previous result,
+    // images, and evolution choices must never carry into this reading.
+    clearStudy();
     sessionStorage.setItem("oryon.categories", JSON.stringify(selected));
     sessionStorage.setItem("oryon.otherNote", otherSelected ? otherNote.trim() : "");
     nav({ to: "/upload" });

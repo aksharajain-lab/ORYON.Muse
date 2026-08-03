@@ -357,6 +357,27 @@
   }
 }
 
+/* ── Share card export & print fidelity ── */
+.share-card {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Freeze the reveal sequence while capturing so the exported PNG matches the
+   settled on-screen card exactly (elements mid-animation would otherwise be
+   captured at partial opacity). */
+.capture-ready,
+.capture-ready * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* The paper-grain overlay uses mix-blend-overlay, which foreign-object capture
+   can render inconsistently; it is invisible at 1.2% opacity, so drop it. */
+.capture-ready .share-card-grain {
+  display: none;
+}
+
 @layer base {
   * { border-color: var(--color-border); }
 

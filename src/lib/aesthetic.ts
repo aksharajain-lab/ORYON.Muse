@@ -198,6 +198,34 @@ export function loadResult(): AestheticResult | null {
   } catch { return null; }
 }
 
+/* ── Study Session Lifecycle ──
+ * Every new study must start from a clean slate: a new analysis completely
+ * replaces the previous session. Old results, images, evolution choices, and
+ * the analysis-used flag must never leak into the next reading. */
+
+const SESSION_CATEGORIES_KEY = "oryon.categories";
+const SESSION_NOTE_KEY = "oryon.otherNote";
+const SESSION_IMAGE_KEY = "oryon.image";
+const SESSION_IMAGES_KEY = "oryon.images";
+
+/** Remove the saved reading and its cached images so a new study never
+ *  surfaces a previous result. */
+export function clearResult() {
+  try { localStorage.removeItem(KEY); } catch {}
+  try { sessionStorage.removeItem(SESSION_IMAGE_KEY); } catch {}
+  try { sessionStorage.removeItem(SESSION_IMAGES_KEY); } catch {}
+}
+
+/** Wipe all persisted state belonging to a previous study. Called the moment
+ *  a new study begins, so every reading is fully independent. */
+export function clearStudy() {
+  clearResult();
+  try { localStorage.removeItem(EVO_KEY); } catch {}
+  try { localStorage.removeItem(ANALYSIS_USED_KEY); } catch {}
+  try { sessionStorage.removeItem(SESSION_CATEGORIES_KEY); } catch {}
+  try { sessionStorage.removeItem(SESSION_NOTE_KEY); } catch {}
+}
+
 /* ── Guest Usage Limits ── */
 
 export const ANALYSIS_LIMIT = 1;

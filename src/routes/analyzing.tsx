@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useState } from "react";
-import { mockAnalyze, saveResult, getAnalysisUsed } from "@/lib/aesthetic";
+import { mockAnalyze, saveResult, getAnalysisUsed, loadResult } from "@/lib/aesthetic";
 
 export const Route = createFileRoute("/analyzing")({
   head: () => ({
@@ -17,8 +17,8 @@ export const Route = createFileRoute("/analyzing")({
 
 const STEPS = [
   "Preparing your visual reading…",
-  "Observing your visual patterns…",
-  "Distilling your aesthetic language…",
+  "Observing your visual language…",
+  "Distilling your aesthetic patterns…",
   "Creating your Visual Identity…",
 ];
 
@@ -28,9 +28,12 @@ function Analyzing() {
   const [blocked, setBlocked] = useState(false);
   const [veil, setVeil] = useState(false);
 
-  // Redirect if analysis already used
+  // A returning guest with a completed reading goes straight to it. A stale
+  // "analysis used" flag without a saved result (e.g. after a fresh study
+  // cleared the state) falls through and runs a new analysis instead of
+  // surfacing an old session's content.
   useEffect(() => {
-    if (getAnalysisUsed()) {
+    if (getAnalysisUsed() && loadResult()) {
       setBlocked(true);
       nav({ to: "/result" });
     }
@@ -39,7 +42,8 @@ function Analyzing() {
   // NOTE: hooks must be declared before any conditional return —
   // returning early before a hook crashed React on the blocked path.
   useEffect(() => {
-    if (blocked || getAnalysisUsed()) return;
+    if (blocked) return;
+    if (getAnalysisUsed() && loadResult()) return; // gate handles the redirect
     const image = sessionStorage.getItem("oryon.image") ?? undefined;
     const total = STEPS.length;
     const per = 1000;

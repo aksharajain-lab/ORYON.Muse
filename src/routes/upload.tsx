@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useRef, useState } from "react";
 import { Upload, ImageIcon, ArrowRight, Plus, X } from "lucide-react";
+import { clearResult } from "@/lib/aesthetic";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -94,6 +95,9 @@ function UploadPage() {
     if (images.length === 0 || submittingRef.current) return;
     submittingRef.current = true;
     setSubmitting(true);
+    // Drop any previous reading before writing the new submission, so the
+    // result page can never show an earlier session's content.
+    clearResult();
     sessionStorage.setItem("oryon.image", images[0]);
     sessionStorage.setItem("oryon.images", JSON.stringify(images));
     nav({ to: "/analyzing" });
@@ -243,7 +247,7 @@ function UploadPage() {
                     <span className="h-1 w-1 animate-pulse rounded-full bg-background/70 [animation-delay:150ms]" />
                     <span className="h-1 w-1 animate-pulse rounded-full bg-background/70 [animation-delay:300ms]" />
                   </span>
-                  Preparing your reading…
+                  Preparing your visual reading…
                 </>
               ) : (
                 <>
