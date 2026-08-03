@@ -346,6 +346,17 @@
 @utility delay-900 { animation-delay: 0.9s; }
 @utility delay-1000 { animation-delay: 1s; }
 
+/* ── Print — the share sheet becomes a clean A4 document ── */
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  html, body {
+    background: #ffffff;
+  }
+}
+
 @layer base {
   * { border-color: var(--color-border); }
 

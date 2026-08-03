@@ -23,9 +23,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   room: "Room",
   outfit: "Outfit",
   moodboard: "Moodboard",
-  social: "Social",
+  social: "Social Profile",
   workspace: "Workspace",
-  photo: "Photo",
+  other: "Other",
 };
 
 function UploadPage() {
@@ -34,12 +34,18 @@ function UploadPage() {
   const [drag, setDrag] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
+  const [otherNote, setOtherNote] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("oryon.categories");
       if (raw) setCategories(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+    try {
+      setOtherNote(sessionStorage.getItem("oryon.otherNote") ?? "");
     } catch {
       /* ignore */
     }
@@ -113,6 +119,11 @@ function UploadPage() {
               </span>
             ))}
           </div>
+        )}
+        {otherNote && (
+          <p className="mt-3 max-w-xl text-[11px] italic leading-relaxed text-muted-foreground/80">
+            Also sharing — <span className="text-foreground/75">{otherNote}</span>
+          </p>
         )}
 
         <div className="mt-5 border-b border-border/20 pb-3 text-xs text-muted-foreground">

@@ -53,8 +53,8 @@ function ResultPage() {
     <Shell>
       <section className="mx-auto max-w-5xl px-5 pt-8 pb-24 sm:pt-12">
 
-        {/* ── The Share Card ── */}
-        <article className="animate-reveal relative overflow-hidden rounded-[1.5rem] border border-border/30 shadow-luxe sm:rounded-[2rem]">
+        {/* ── The Share Card — an A4 editorial sheet ── */}
+        <article className="animate-reveal relative mx-auto max-w-sm overflow-hidden rounded-[1.25rem] border border-border/30 shadow-luxe sm:max-w-[30rem] sm:rounded-[1.5rem] print:max-w-none print:rounded-none print:border-0 print:shadow-none">
           {/* Grain texture */}
           <div className="pointer-events-none absolute inset-0 opacity-[0.012] mix-blend-overlay"
             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`, backgroundSize: "96px 96px" }}
@@ -78,7 +78,7 @@ function ResultPage() {
             <div className="animate-fade-in absolute inset-0 bg-aurora" />
           )}
 
-          <div className="relative flex min-h-[560px] flex-col justify-between px-6 py-7 sm:min-h-[640px] sm:px-10 sm:py-9">
+          <div className="relative flex min-h-[660px] flex-col px-7 pb-7 pt-8 sm:aspect-[210/297] sm:min-h-0 sm:px-9 sm:pb-8 sm:pt-9 print:aspect-auto print:min-h-0">
             {/* Masthead */}
             <div className="animate-fade-up flex items-baseline justify-between gap-4 border-b border-border/20 pb-4">
               <p className="text-[10px] uppercase tracking-[0.5em] text-foreground/75">
@@ -91,53 +91,52 @@ function ResultPage() {
               </p>
             </div>
 
-            {/* Asymmetric composition — identity left, palette right */}
-            <div className="grid gap-10 py-8 sm:grid-cols-[1.25fr_0.75fr] sm:items-end">
-              <div className="max-w-xl">
-                <p className="animate-fade-up text-[9px] uppercase tracking-[0.55em] text-muted-foreground">
-                  Your Visual Identity
-                </p>
-                <h2 className="animate-fade-up delay-100 mt-4 text-serif text-[2.9rem] leading-[0.95] tracking-tight text-foreground sm:text-[4.2rem]">
-                  {r.identity}
-                </h2>
-                <p className="animate-fade-up delay-200 mt-2 text-serif text-lg italic text-foreground/70 sm:text-xl">
-                  the {r.identity.split(" ").pop()?.toLowerCase() ?? r.identity}
-                </p>
+            {/* Identity — the heart of the page */}
+            <div className="flex flex-1 flex-col justify-center py-8 sm:py-9">
+              <p className="animate-fade-up text-[9px] uppercase tracking-[0.55em] text-muted-foreground">
+                Your Visual Identity
+              </p>
+              <h2 className="animate-fade-up delay-100 mt-4 text-serif text-[2.75rem] leading-[0.98] tracking-tight text-foreground sm:text-[2.9rem]">
+                {r.identity}
+              </h2>
+              <p className="animate-fade-up delay-200 mt-2 text-serif text-lg italic text-foreground/70">
+                the {r.identity.split(" ").pop()?.toLowerCase() ?? r.identity}
+              </p>
 
-                <p className="animate-fade-up delay-300 mt-6 text-[10px] uppercase tracking-[0.35em] text-foreground/75">
-                  {r.traits.slice(0, 3).join("  ·  ")}
-                </p>
+              <p className="animate-fade-up delay-300 mt-5 text-[10px] uppercase tracking-[0.35em] text-foreground/75">
+                {r.traits.slice(0, 3).join("  ·  ")}
+              </p>
 
-                <div className="animate-draw-line relative my-6 h-px w-16 overflow-hidden bg-foreground/15" />
+              <div className="animate-draw-line relative my-5 h-px w-16 overflow-hidden bg-foreground/15" />
 
-                <p className="animate-fade-up delay-400 max-w-md text-serif text-lg leading-relaxed italic text-foreground/75 sm:text-xl">
-                  "{r.tagline}"
-                </p>
-                <p className="animate-fade-up delay-500 mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {supporting}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-start sm:items-end">
-                <p className="animate-fade-up delay-500 text-[8px] uppercase tracking-[0.45em] text-muted-foreground">Palette</p>
-                <div className="mt-3 flex -space-x-3 sm:-space-x-4">
-                  {r.palette.slice(0, 3).map((p, i) => (
-                    <span
-                      key={p.hex}
-                      className="animate-settle inline-block h-14 w-14 rounded-full border-2 border-background shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-luxe sm:h-16 sm:w-16"
-                      style={{ background: p.hex, animationDelay: `${0.6 + i * 0.18}s` }}
-                      title={p.name}
-                    />
-                  ))}
-                </div>
-                <p className="animate-fade-up delay-800 mt-3 text-[8px] uppercase tracking-[0.3em] text-muted-foreground/70">
-                  {r.palette.slice(0, 3).map((p) => p.name).join(" · ")}
-                </p>
-              </div>
+              <p className="animate-fade-up delay-400 max-w-md text-serif text-lg leading-relaxed italic text-foreground/75 sm:text-xl">
+                "{r.tagline}"
+              </p>
+              <p className="animate-fade-up delay-500 mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                {supporting}
+              </p>
             </div>
 
-            {/* Bottom center — invitation + branding */}
-            <div className="animate-fade-up delay-600 flex flex-col items-center gap-2.5 border-t border-border/20 pt-5">
+            {/* Palette — a balanced editorial plate */}
+            <div className="animate-fade-up delay-600 flex flex-col items-center border-y border-border/15 py-6">
+              <p className="text-[8px] uppercase tracking-[0.45em] text-muted-foreground">Palette</p>
+              <div className="mt-4 flex -space-x-3 sm:-space-x-3.5">
+                {r.palette.slice(0, 3).map((p, i) => (
+                  <span
+                    key={p.hex}
+                    className="animate-settle inline-block h-12 w-12 rounded-full border-2 border-background shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-luxe"
+                    style={{ background: p.hex, animationDelay: `${0.6 + i * 0.18}s` }}
+                    title={p.name}
+                  />
+                ))}
+              </div>
+              <p className="animate-fade-up delay-800 mt-3 text-[8px] uppercase tracking-[0.3em] text-muted-foreground/70">
+                {r.palette.slice(0, 3).map((p) => p.name).join(" · ")}
+              </p>
+            </div>
+
+            {/* Invitation + branding */}
+            <div className="animate-fade-up delay-900 flex flex-col items-center gap-2.5 pt-6">
               <p className="text-serif text-lg italic text-foreground/60 sm:text-xl">
                 Discover your own visual identity.
               </p>
@@ -146,7 +145,7 @@ function ResultPage() {
                 <span className="h-1 w-1 rotate-45 border border-border/40" />
                 <span className="h-px w-8 bg-border/30" />
               </div>
-              <p className="text-[8px] uppercase tracking-[0.45em] text-muted-foreground">
+              <p className="animate-fade-up delay-1000 text-[8px] uppercase tracking-[0.45em] text-muted-foreground">
                 Interpreted by ORYON Muse
               </p>
             </div>
@@ -154,7 +153,7 @@ function ResultPage() {
         </article>
 
         {/* ── Next Step — Continue Your Evolution ── */}
-        <section className="animate-fade-up delay-[1000ms] mt-14">
+        <section className="animate-fade-up delay-[1000ms] mx-auto mt-14 max-w-2xl print:hidden">
           <div className="rounded-2xl border border-border/25 px-6 py-10 text-center sm:px-10 sm:py-12">
             <p className="text-[8px] uppercase tracking-[0.45em] text-muted-foreground">
               <Compass className="mr-1.5 inline h-3 w-3" />
@@ -178,7 +177,7 @@ function ResultPage() {
         </section>
 
         {/* ── Action Bar — revealed last ── */}
-        <div className="animate-fade-up delay-[1300ms] mt-8 flex flex-wrap items-center justify-center gap-2.5 border-t border-border/15 pt-6">
+        <div className="animate-fade-up delay-[1300ms] mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-2.5 border-t border-border/15 pt-6 print:hidden">
           <button
             onClick={share}
             className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background shadow-luxe transition duration-300 hover:-translate-y-0.5"

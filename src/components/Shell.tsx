@@ -21,7 +21,7 @@ export function Shell({ children }: { children: ReactNode }) {
       />
       {/* Fine dot pattern */}
       <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(circle_at_1px_1px,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_0)] [background-size:48px_48px] opacity-[0.035]" />
-      <header className="relative z-20">
+      <header className="relative z-20 print:hidden">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-6 sm:pt-8">
           <Link to="/" className="group flex items-center gap-2.5 transition hover:opacity-80">
             <span className="grid h-8 w-8 place-items-center rounded-full glass shadow-soft">
@@ -35,7 +35,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="relative z-10">{children}</main>
-      <footer className="relative z-10 mx-auto max-w-5xl px-5 py-8 text-center text-[9px] uppercase tracking-[0.4em] text-muted-foreground">
+      <footer className="relative z-10 mx-auto max-w-5xl px-5 py-8 text-center text-[9px] uppercase tracking-[0.4em] text-muted-foreground print:hidden">
         ORYON Muse — an aesthetic companion
       </footer>
     </div>

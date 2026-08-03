@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Compass, PenLine } from "lucide-react";
+import { Check, Compass, PenLine } from "lucide-react";
 import {
   EVOLVE_DIRECTIONS,
   saveEvolution,
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/evolve")({
   head: () => ({
     meta: [
       { title: "Continue Your Evolution — ORYON Muse" },
-      { name: "description", content: "Choose the aesthetic worlds you'd like to explore. Your guide will carry them into your conversation." },
+      { name: "description", content: "Choose the aesthetic worlds you'd like to explore and shape the direction of your visual identity." },
       { property: "og:title", content: "Continue Your Evolution — ORYON Muse" },
       { property: "og:description", content: "Choose the aesthetic worlds you'd like to explore." },
     ],
@@ -56,8 +56,8 @@ function EvolvePage() {
               Where would you like to <em className="italic font-light">evolve?</em>
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Choose the worlds that call to you — as many as you like. Your guide will weave them into
-              the conversation, alongside the reading it already holds.
+              Choose the worlds that call to you — as many as you like. They shape the direction
+              your visual identity will take from here.
             </p>
           </div>
           <span className="hidden text-[8px] uppercase tracking-[0.35em] text-muted-foreground/70 sm:inline">
@@ -155,19 +155,12 @@ function EvolvePage() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-4 border-t border-border/20 pt-4">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-6 border-t border-border/20 pt-4">
+          <p className="text-center text-xs text-muted-foreground">
             {selected.length === 0
-              ? "Your guide will focus on your current identity until you choose."
-              : "Your guide will consider every world you've chosen."}
+              ? "Your reading stands as it is — no direction chosen."
+              : `Your evolution is recorded — ${selected.length} world${selected.length !== 1 ? "s" : ""} to carry forward.`}
           </p>
-          <Link
-            to="/guide"
-            className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background shadow-luxe transition duration-300 hover:-translate-y-0.5"
-          >
-            Continue with your guide
-            <ArrowRight className="h-3.5 w-3.5 transition duration-300 group-hover:translate-x-0.5" />
-          </Link>
         </div>
 
         <div className="mt-8 text-center">

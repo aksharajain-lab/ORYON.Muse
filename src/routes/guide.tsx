@@ -6,6 +6,7 @@ import {
   loadEvolution,
   loadEvolutionCustom,
   loadCategories,
+  loadOtherNote,
   categoryNames,
   EVOLVE_DIRECTIONS,
   getGuideAnalysisMessages,
@@ -101,12 +102,14 @@ function GuidePage() {
     ];
     const catNames = categoryNames(loadCategories());
     const studied = catNames.length > 0 ? `, studied through your ${catNames.join(", ")}` : "";
+    const note = loadOtherNote();
+    const noteClause = note ? ` — and I'll keep your note about ${note} in mind` : "";
     setR(v);
     const limitMsg = v ? ANALYSIS_LIMIT_MSG : DIRECT_LIMIT_MSG;
     const greeting = v
       ? evoNames.length > 0
-        ? `Your reading came back as ${v.identity}${studied}, and you're curious about ${evoNames.join(", ")} — a useful combination: the foundation's there, we're adding to it. Which part feels most like you right now — the colours, the textures, or the atmosphere?`
-        : `Your reading came back as ${v.identity}${studied}. There's a lot to work with. Which part feels most like you — the colours, the textures, or the atmosphere?`
+        ? `Your reading came back as ${v.identity}${studied}${noteClause}, and you're curious about ${evoNames.join(", ")} — a useful combination: the foundation's there, we're adding to it. Which part feels most like you right now — the colours, the textures, or the atmosphere?`
+        : `Your reading came back as ${v.identity}${studied}${noteClause}. There's a lot to work with. Which part feels most like you — the colours, the textures, or the atmosphere?`
       : `Good to meet you. Tell me about the last space, outfit, or object that stopped you. Those details are where your taste actually lives.`;
 
     const initial: Msg[] = [{ id: "m1", role: "muse", text: greeting }];

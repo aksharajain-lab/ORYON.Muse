@@ -282,12 +282,21 @@ export type MuseReply = { sections: MuseSection[]; moment?: string };
 
 const CATEGORY_LABELS: Record<string, string> = {
   outfit: "Outfit",
-  moodboard: "Moodboard",
   room: "Room",
+  moodboard: "Moodboard",
+  social: "Social Profile",
   workspace: "Workspace",
-  social: "Social",
-  photo: "Photo",
+  other: "Other",
 };
+
+/** Optional free-text note describing what the user is sharing, when they chose "Other". */
+export function loadOtherNote(): string {
+  try {
+    return sessionStorage.getItem("oryon.otherNote")?.trim() ?? "";
+  } catch {
+    return "";
+  }
+}
 
 /** The categories chosen at the start of the study flow. */
 export function loadCategories(): string[] {

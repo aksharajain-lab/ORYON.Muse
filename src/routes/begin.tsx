@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useState } from "react";
-import { ArrowRight, Home, Shirt, Layout, User, Briefcase, Camera, Check } from "lucide-react";
+import { ArrowRight, Home, Shirt, Layout, User, Briefcase, Sparkles, Check } from "lucide-react";
 
 export const Route = createFileRoute("/begin")({
   head: () => ({
     meta: [
       { title: "Begin Your Study — ORYON Muse" },
-      { name: "description", content: "Choose the parts of your visual world you'd like Muse to understand — outfit, moodboard, room, and more." },
+      { name: "description", content: "Choose the parts of your visual world you'd like Muse to understand — outfit, room, moodboard, and more." },
       { property: "og:title", content: "Begin Your Study — ORYON Muse" },
       { property: "og:description", content: "Choose the parts of your visual world you'd like Muse to understand." },
     ],
@@ -19,19 +19,21 @@ const MAX_SELECTIONS = 3;
 
 const CATEGORIES = [
   { id: "outfit", label: "Outfit", hint: "Something you wore this week", icon: Shirt },
-  { id: "moodboard", label: "Moodboard", hint: "A page torn, a screenshot saved", icon: Layout },
   { id: "room", label: "Room", hint: "Where you spend quiet hours", icon: Home },
+  { id: "moodboard", label: "Moodboard", hint: "A page torn, a screenshot saved", icon: Layout },
+  { id: "social", label: "Social Profile", hint: "The grid you've been building", icon: User },
   { id: "workspace", label: "Workspace", hint: "The desk where the ideas land", icon: Briefcase },
-  { id: "social", label: "Social", hint: "The grid you've been building", icon: User },
-  { id: "photo", label: "Photo", hint: "A single frame that held you", icon: Camera },
+  { id: "other", label: "Other", hint: "A fragment that fits no shelf", icon: Sparkles },
 ];
 
 function BeginPage() {
   const nav = useNavigate();
   const [selected, setSelected] = useState<string[]>([]);
+  const [otherNote, setOtherNote] = useState("");
   const [warn, setWarn] = useState(false);
 
   const atLimit = selected.length >= MAX_SELECTIONS;
+  const otherSelected = selected.includes("other");
 
   const toggle = (id: string) => {
     setWarn(false);
@@ -48,6 +50,7 @@ function BeginPage() {
       return;
     }
     sessionStorage.setItem("oryon.categories", JSON.stringify(selected));
+    sessionStorage.setItem("oryon.otherNote", otherSelected ? otherNote.trim() : "");
     nav({ to: "/upload" });
   };
 
@@ -61,11 +64,11 @@ function BeginPage() {
               What would you like me to <em className="italic font-light">understand?</em>
             </h1>
             <p className="mt-4 max-w-xl text-sm text-muted-foreground">
-              Choose up to three worlds for Muse to explore.
+              Choose your visual worlds — one, two, or up to three.
             </p>
           </div>
           <div className="hidden text-right sm:block">
-            <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">Worlds chosen</p>
+            <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">Select up to 3</p>
             <p className="mt-1.5 text-serif text-2xl leading-none text-foreground/85">
               {selected.length} <span className="text-lg text-foreground/60">/ {MAX_SELECTIONS}</span>
             </p>
@@ -83,7 +86,7 @@ function BeginPage() {
                 onClick={() => toggle(c.id)}
                 aria-pressed={active}
                 disabled={locked}
-                className={`group relative rounded-xl border p-4 text-left transition ${
+                className={`group relative rounded-xl border p-4 text-left transition-all duration-300 ease-out ${
                   active
                     ? "border-foreground/30 bg-foreground/[0.03] -translate-y-0.5"
                     : locked
@@ -92,16 +95,16 @@ function BeginPage() {
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className={`grid h-9 w-9 place-items-center rounded-full border text-foreground/60 ${
+                  <span className={`grid h-9 w-9 place-items-center rounded-full border text-foreground/60 transition-all duration-300 ${
                     active ? "border-foreground/30 bg-foreground/5" : "border-border/40"
                   }`}>
                     <Icon className="h-4 w-4" />
                   </span>
                   <span
-                    className={`grid h-5 w-5 place-items-center rounded-full border text-[9px] transition ${
+                    className={`grid h-5 w-5 place-items-center rounded-full border text-[9px] transition-all duration-300 ease-out ${
                       active
-                        ? "border-transparent bg-foreground text-background"
-                        : "border-border/50 text-transparent"
+                        ? "scale-100 border-transparent bg-foreground text-background"
+                        : "scale-50 border-border/50 text-transparent"
                     }`}
                     aria-hidden
                   >
@@ -114,6 +117,25 @@ function BeginPage() {
             );
           })}
         </div>
+
+        {otherSelected && (
+          <div className="animate-fade-up mt-5 rounded-xl border border-border/40 bg-foreground/[0.02] p-4 sm:p-5">
+            <label htmlFor="other-note" className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground">
+              What are you sharing?
+            </label>
+            <input
+              id="other-note"
+              value={otherNote}
+              onChange={(e) => setOtherNote(e.target.value)}
+              placeholder="Tell Muse what doesn't fit a shelf — a texture, a place, a piece…"
+              maxLength={140}
+              className="mt-2 w-full bg-transparent font-serif text-lg text-foreground/90 placeholder:text-foreground/35 focus:outline-none sm:text-xl"
+            />
+            <p className="mt-2 text-[10px] text-muted-foreground/70">
+              Muse reads this note alongside your images.
+            </p>
+          </div>
+        )}
 
         {atLimit && (
           <p className="mt-4 text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground/70">
@@ -136,7 +158,7 @@ function BeginPage() {
                 </p>
               ) : atLimit ? (
                 <p className="mt-1 text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60">
-                  Full — deselect to change your chapters
+                  Three chosen — deselect one to choose another
                 </p>
               ) : null}
             </div>

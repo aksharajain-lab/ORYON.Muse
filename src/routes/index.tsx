@@ -43,12 +43,6 @@ function Landing() {
                 Begin Your Study
                 <ArrowUpRight className="h-4 w-4 transition group-hover:rotate-45" />
               </Link>
-              <Link
-                to="/guide"
-                className="inline-flex items-center gap-2 rounded-full border border-border/50 px-5 py-3 text-sm text-foreground/70 transition hover:text-foreground"
-              >
-                Talk to your guide
-              </Link>
             </div>
           </div>
 
