@@ -1,0 +1,234 @@
+// ── ORYON Muse · AI Analysis (via AIMLAPI) ─────────────────────────────
+// Server-only module. The `.server` suffix keeps it out of the browser
+// bundle; the API key is read from process.env and never reaches the client.
+//
+// The client sends the (already downscaled) images plus their study context
+// (categories + optional note). We forward them to the model through
+// AIMLAPI's OpenAI-compatible endpoint, enforce JSON output, validate the
+// result, and return a reading that matches the existing AestheticResult
+// shape — so no UI change is needed.
+
+import type { AestheticResult } from "./aesthetic";
+
+export type AnalyzeInput = {
+  images: string[];
+  categories?: string[];
+  otherNote?: string;
+};
+
+const MODEL = process.env.AIMLAPI_MODEL ?? "google/gemini-3.6-flash";
+const API_KEY = process.env.AIMLAPI_API_KEY;
+
+const ENDPOINT = "https://api.aimlapi.com/v1/chat/completions";
+const MAX_TOKENS = 1600;
+
+/* ── The ORYON voice ──────────────────────────────────────────────────── */
+
+const SYSTEM_PROMPT = `You are ORYON Muse, an editorial curator of visual identity. Someone has shared a small collection of images and asked you to write a private, magazine-quality reading of the visual identity those images reveal together.
+
+Read the images as evidence. Look for:
+- Color patterns: dominant hues, temperature, saturation habits, combinations that repeat
+- Textures and materials: soft, raw, glossy, aged, natural, metallic…
+- Silhouettes and forms: structured vs soft, proportions, recurring shapes
+- Composition habits: negative space, layering, staging, how light is directed
+- Era references: period cues, vintage vs contemporary signals
+- Emotional atmosphere: the feeling the scenes create — calm, electric, hushed, warm, spacious…
+- Recurring visual themes across ALL images: what keeps returning is the real signal
+
+Then write a reading with exactly these fields:
+
+1. identity — a 2–4 word Visual Identity name. Evocative, specific, original. NEVER use preset aesthetic labels such as "Dark Academia", "Minimalist", "Coquette", "Old Money", "Y2K", "Streetwear", "Soft Muse", "Vintage" or "Quiet Luxury" as the identity itself.
+2. traits — exactly 5 short descriptive words (single words, 3–14 characters) capturing the visual character.
+3. palette — exactly 5 colors that are actually present or strongly implied by the images. Each with a poetic color name (e.g. "Faded Vermilion") and a valid 6-digit hex code (e.g. "#A65B3F").
+4. tagline — ONE poetic but grounded sentence (max ~18 words) that captures the identity memorably.
+5. signature — 2–3 sentences of supporting interpretation. Specific, observational, grounded in what is actually visible. Explain WHY the patterns you noticed hold together. Never generic praise, never personality psychology.
+6. suggestions — exactly 3 concrete, actionable directions the person could explore next, one sentence each.
+
+Voice rules:
+- Luxury-magazine tone: calm, observant, specific, lightly editorial. Not robotic, not florid, not AI-sounding.
+- Ground every statement in what is visible in the images. Do not invent biography, personality, or preferences.
+- Do not force the user into any preset aesthetic category. Do not make generic personality guesses ("you are confident").
+- Every sentence should carry meaning. Avoid excessive metaphor and long philosophical passages.
+
+Respond with a single valid JSON object containing exactly these keys: identity, traits, palette, tagline, signature, suggestions. No markdown, no commentary outside the JSON.`;
+
+/* ── Fallback fields (used only if the model returns something malformed) ── */
+
+const FALLBACK_TRAITS = ["Considered", "Refined", "Grounded", "Warm", "Specific"];
+const FALLBACK_PALETTE = [
+  { name: "Bone", hex: "#EFE8DD" },
+  { name: "Camel", hex: "#C8A97E" },
+  { name: "Ash Rose", hex: "#B49A9A" },
+  { name: "Stone", hex: "#8C8579" },
+  { name: "Deep Espresso", hex: "#3B2E28" },
+];
+const FALLBACK_SIGNATURE =
+  "Your choices keep returning to weighty textures, muted tones, and quiet compositions — a preference for substance over spectacle. Each piece earns its place; the result is a space that reveals itself slowly.";
+const FALLBACK_SUGGESTIONS = [
+  "Repeat one silhouette at three different scales — rhythm without new objects.",
+  "Swap one glossy surface for a matte, tactile alternative.",
+  "Leave one surface deliberately empty; the restraint is the statement.",
+];
+
+/* ── Main entry ───────────────────────────────────────────────────────── */
+
+export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<AestheticResult> {
+  if (!API_KEY) {
+    throw new Error("AIMLAPI_API_KEY is not configured on the server.");
+  }
+
+  const body = {
+    model: MODEL,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: buildContent(input) },
+    ],
+    temperature: 0.8,
+    max_tokens: MAX_TOKENS,
+    response_format: { type: "json_object" },
+  };
+
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}` },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(45_000),
+      });
+
+      if (!res.ok) {
+        const detail = await res.text().catch(() => "");
+        if (attempt === 0 && (res.status === 429 || res.status >= 500)) {
+          await sleep(1500);
+          continue;
+        }
+        throw new Error(`AIMLAPI ${res.status}: ${detail.slice(0, 240)}`);
+      }
+
+      const data = (await res.json()) as ChatCompletionResponse;
+      const text = data.choices?.[0]?.message?.content;
+      if (!text) throw new Error("The model returned an empty response.");
+
+      const raw = JSON.parse(text) as unknown;
+      return validateResult(raw);
+    } catch (err) {
+      lastError = err;
+      if (attempt === 0 && isRetryableError(err)) {
+        await sleep(1500);
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("The reading could not be completed.");
+}
+
+/* ── Request building (OpenAI-compatible content parts) ───────────────── */
+
+const CATEGORY_LABELS: Record<string, string> = {
+  outfit: "Outfit",
+  room: "Room",
+  moodboard: "Moodboard",
+  social: "Social Profile",
+  workspace: "Workspace",
+  other: "Other",
+};
+
+function buildContent(input: AnalyzeInput): Array<Record<string, unknown>> {
+  const content: Array<Record<string, unknown>> = [];
+
+  for (const dataUrl of input.images.slice(0, 5)) {
+    if (!/^data:image\//.test(dataUrl)) continue;
+    content.push({ type: "image_url", image_url: { url: dataUrl } });
+  }
+
+  const context: string[] = [];
+  const cats = (input.categories ?? [])
+    .map((id) => CATEGORY_LABELS[id] ?? id)
+    .filter(Boolean);
+  if (cats.length) context.push(`What is being studied: ${cats.join(", ")}.`);
+  if (input.otherNote?.trim()) {
+    context.push(`The user's own note: "${input.otherNote.trim()}".`);
+  }
+  context.push("Write a specific, evidence-based reading of the visual identity these images share.");
+  content.push({ type: "text", text: context.join("\n") });
+
+  return content;
+}
+
+/* ── Validation & hardening ───────────────────────────────────────────── */
+
+function validateResult(raw: unknown): AestheticResult {
+  const r = (raw ?? {}) as Record<string, unknown>;
+
+  const str = (v: unknown, max: number, fallback: string) =>
+    typeof v === "string" && v.trim() ? v.trim().slice(0, max) : fallback;
+
+  const identity = str(r.identity, 60, "The Quiet Edit");
+  const tagline = str(r.tagline, 160, "Muted, layered, and quietly considered.");
+
+  const traitsRaw = Array.isArray(r.traits)
+    ? r.traits.filter((t): t is string => typeof t === "string" && t.trim().length > 0)
+    : [];
+  const traits = (traitsRaw.length > 0 ? traitsRaw : FALLBACK_TRAITS)
+    .slice(0, 5)
+    .map((t) => t.trim().slice(0, 20));
+  while (traits.length < 5) traits.push(FALLBACK_TRAITS[traits.length] ?? "Considered");
+
+  const paletteRaw = Array.isArray(r.palette) ? r.palette : [];
+  const palette: { name: string; hex: string }[] = [];
+  for (const item of paletteRaw) {
+    if (palette.length >= 5) break;
+    const o = (item ?? {}) as Record<string, unknown>;
+    const hex = normalizeHex(typeof o.hex === "string" ? o.hex : "");
+    const name = typeof o.name === "string" && o.name.trim() ? o.name.trim().slice(0, 24) : "";
+    if (hex && name) palette.push({ name, hex });
+  }
+  while (palette.length < 5) {
+    const fb = FALLBACK_PALETTE[palette.length];
+    if (!fb) break;
+    palette.push(fb);
+  }
+
+  const signature = str(r.signature, 700, FALLBACK_SIGNATURE);
+
+  const suggRaw = Array.isArray(r.suggestions)
+    ? r.suggestions.filter((s): s is string => typeof s === "string" && s.trim().length > 0)
+    : [];
+  const suggestions = (suggRaw.length > 0 ? suggRaw : FALLBACK_SUGGESTIONS)
+    .slice(0, 3)
+    .map((s) => s.trim().slice(0, 200));
+  while (suggestions.length < 3) {
+    suggestions.push(FALLBACK_SUGGESTIONS[suggestions.length] ?? "Choose one small change and live with it for a week.");
+  }
+
+  return { identity, tagline, palette, traits, signature, suggestions, createdAt: Date.now() };
+}
+
+function normalizeHex(hex: string): string | null {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(hex.trim());
+  if (!m) return null;
+  let v = m[1];
+  if (v.length === 3) v = v.split("").map((c) => c + c).join("");
+  return `#${v.toUpperCase()}`;
+}
+
+/* ── Helpers ──────────────────────────────────────────────────────────── */
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableError(err: unknown): boolean {
+  if (err instanceof DOMException && err.name === "AbortError") return true;
+  const msg = err instanceof Error ? err.message : String(err);
+  return /fetch failed|ECONNRESET|ETIMEDOUT|ENOTFOUND/i.test(msg);
+}
+
+/* ── AIMLAPI response type ────────────────────────────────────────────── */
+
+type ChatCompletionResponse = {
+  choices?: Array<{ message?: { content?: string } }>;
+};

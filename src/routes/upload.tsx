@@ -3,6 +3,7 @@ import { Shell } from "@/components/Shell";
 import { useEffect, useRef, useState } from "react";
 import { Upload, ImageIcon, ArrowRight, Plus, X } from "lucide-react";
 import { clearResult } from "@/lib/aesthetic";
+import { downscaleImage } from "@/lib/image";
 
 export const Route = createFileRoute("/upload")({
   head: () => ({
@@ -84,7 +85,13 @@ function UploadPage() {
       accepted.push(f);
     }
     const dataUrls = await Promise.all(accepted.map(readFile));
-    setImages((prev) => [...prev, ...dataUrls].slice(0, MAX_IMAGES));
+    // Downscale on-device before storing, so the analysis request stays light
+    // and the share card loses nothing visually. Falls back to the original
+    // if a file can't be re-encoded.
+    const optimized = await Promise.all(
+      dataUrls.map((d) => downscaleImage(d).catch(() => d)),
+    );
+    setImages((prev) => [...prev, ...optimized].slice(0, MAX_IMAGES));
   };
 
   const remove = (i: number) =>
