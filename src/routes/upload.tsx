@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useRef, useState } from "react";
 import { Upload, ImageIcon, ArrowRight, Plus, X } from "lucide-react";
-import { clearResult } from "@/lib/aesthetic";
+import { clearResult, setSessionImages } from "@/lib/aesthetic";
 import { downscaleImage } from "@/lib/image";
 
 export const Route = createFileRoute("/upload")({
@@ -105,8 +105,10 @@ function UploadPage() {
     // Drop any previous reading before writing the new submission, so the
     // result page can never show an earlier session's content.
     clearResult();
-    sessionStorage.setItem("oryon.image", images[0]);
-    sessionStorage.setItem("oryon.images", JSON.stringify(images));
+    // setSessionImages keeps the images in memory and persists to
+    // sessionStorage best-effort (quota-safe). A storage failure can never
+    // throw here and block the navigation below.
+    setSessionImages(images);
     nav({ to: "/analyzing" });
   };
 
@@ -245,7 +247,7 @@ function UploadPage() {
               onClick={proceed}
               disabled={images.length === 0 || submitting}
               aria-busy={submitting}
-              className="group inline-flex flex-none items-center gap-2.5 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+              className="group inline-flex flex-none touch-manipulation items-center gap-2.5 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition duration-300 hover:bg-foreground/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {submitting ? (
                 <>

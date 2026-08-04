@@ -8,6 +8,7 @@ import {
   loadResult,
   loadCategories,
   loadOtherNote,
+  getStoredImages,
   type AestheticResult,
 } from "@/lib/aesthetic";
 
@@ -35,20 +36,6 @@ const STEPS = [
 // drives the final handoff. The reveal can never arrive faster than the
 // steps allow, and can never hang silently while the model works.
 const MIN_STEP_MS = 900;
-
-function getStoredImages(): string[] {
-  try {
-    const all = sessionStorage.getItem("oryon.images");
-    if (all) {
-      const parsed = JSON.parse(all) as unknown;
-      if (Array.isArray(parsed)) return parsed.filter((x): x is string => typeof x === "string");
-    }
-    const one = sessionStorage.getItem("oryon.image");
-    return one ? [one] : [];
-  } catch {
-    return [];
-  }
-}
 
 /** Call the server-side reading. Throws on any failure — the caller falls
  *  back to a local reading so the journey never breaks. */

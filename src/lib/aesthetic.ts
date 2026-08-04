@@ -208,9 +208,61 @@ const SESSION_NOTE_KEY = "oryon.otherNote";
 const SESSION_IMAGE_KEY = "oryon.image";
 const SESSION_IMAGES_KEY = "oryon.images";
 
+/* ── In-memory session store ────────────────────────────────────────────
+ * Uploaded images are base64 strings that can exceed the ~5 MB
+ * sessionStorage quota (PNG screenshots especially). Writing them before
+ * navigation could throw QuotaExceededError and abort the click handler
+ * mid-flight — leaving the Continue button locked with no navigation.
+ *
+ * These helpers therefore keep the values in module memory first (always
+ * available to the SPA flow) and persist to sessionStorage as a best-effort
+ * layer that survives a page refresh. Storage failures can never block a
+ * route transition. */
+
+let memoryImages: string[] | null = null;
+let memoryCategories: string[] | null = null;
+let memoryNote: string | null = null;
+
+/** Persist the study's images without ever throwing. The first image is no
+ *  longer duplicated into the legacy single-image key — that saved a full
+ *  copy and was a major quota multiplier. */
+export function setSessionImages(images: string[]) {
+  memoryImages = images;
+  try { sessionStorage.setItem(SESSION_IMAGES_KEY, JSON.stringify(images)); } catch { /* quota — memory store still holds them */ }
+  try { sessionStorage.removeItem(SESSION_IMAGE_KEY); } catch {}
+}
+
+export function setSessionCategories(ids: string[]) {
+  memoryCategories = ids;
+  try { sessionStorage.setItem(SESSION_CATEGORIES_KEY, JSON.stringify(ids)); } catch {}
+}
+
+export function setSessionNote(note: string) {
+  memoryNote = note;
+  try { sessionStorage.setItem(SESSION_NOTE_KEY, note); } catch {}
+}
+
+/** The images of the current study: memory first (SPA flow), then
+ *  sessionStorage (refresh/direct navigation). */
+export function getStoredImages(): string[] {
+  if (memoryImages && memoryImages.length > 0) return memoryImages;
+  try {
+    const all = sessionStorage.getItem(SESSION_IMAGES_KEY);
+    if (all) {
+      const parsed = JSON.parse(all) as unknown;
+      if (Array.isArray(parsed)) return parsed.filter((x): x is string => typeof x === "string");
+    }
+    const one = sessionStorage.getItem(SESSION_IMAGE_KEY);
+    return one ? [one] : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Remove the saved reading and its cached images so a new study never
  *  surfaces a previous result. */
 export function clearResult() {
+  memoryImages = null;
   try { localStorage.removeItem(KEY); } catch {}
   try { sessionStorage.removeItem(SESSION_IMAGE_KEY); } catch {}
   try { sessionStorage.removeItem(SESSION_IMAGES_KEY); } catch {}
@@ -220,6 +272,8 @@ export function clearResult() {
  *  a new study begins, so every reading is fully independent. */
 export function clearStudy() {
   clearResult();
+  memoryCategories = null;
+  memoryNote = null;
   try { localStorage.removeItem(EVO_KEY); } catch {}
   try { localStorage.removeItem(ANALYSIS_USED_KEY); } catch {}
   try { sessionStorage.removeItem(SESSION_CATEGORIES_KEY); } catch {}
@@ -319,6 +373,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 /** Optional free-text note describing what the user is sharing, when they chose "Other". */
 export function loadOtherNote(): string {
+  if (memoryNote !== null) return memoryNote.trim();
   try {
     return sessionStorage.getItem("oryon.otherNote")?.trim() ?? "";
   } catch {
@@ -328,6 +383,7 @@ export function loadOtherNote(): string {
 
 /** The categories chosen at the start of the study flow. */
 export function loadCategories(): string[] {
+  if (memoryCategories !== null) return memoryCategories;
   try {
     const v = sessionStorage.getItem("oryon.categories");
     if (!v) return [];

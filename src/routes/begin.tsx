@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useState } from "react";
 import { ArrowRight, Home, Shirt, Layout, User, Briefcase, Sparkles, Check } from "lucide-react";
-import { clearStudy } from "@/lib/aesthetic";
+import { clearStudy, setSessionCategories, setSessionNote } from "@/lib/aesthetic";
 
 export const Route = createFileRoute("/begin")({
   head: () => ({
@@ -53,8 +53,10 @@ function BeginPage() {
     // A new study always starts from a clean slate — the previous result,
     // images, and evolution choices must never carry into this reading.
     clearStudy();
-    sessionStorage.setItem("oryon.categories", JSON.stringify(selected));
-    sessionStorage.setItem("oryon.otherNote", otherSelected ? otherNote.trim() : "");
+    // Quota-safe helpers: values live in memory first, sessionStorage is a
+    // best-effort persistence layer. They can never throw and block the nav.
+    setSessionCategories(selected);
+    setSessionNote(otherSelected ? otherNote.trim() : "");
     nav({ to: "/upload" });
   };
 
@@ -168,7 +170,7 @@ function BeginPage() {
             </div>
             <button
               onClick={proceed}
-              className="group inline-flex flex-none items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition hover:-translate-y-0.5"
+              className="group inline-flex flex-none touch-manipulation items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition hover:bg-foreground/90 active:scale-[0.98]"
             >
               Continue
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
