@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
+import { OpeningSequence } from "@/components/OpeningSequence";
 import heroSoft from "@/assets/hero-soft.jpg";
 import heroDark from "@/assets/hero-dark.jpg";
 import { ArrowUpRight, Camera, Palette, MessageCircle } from "lucide-react";
@@ -21,6 +22,11 @@ export const Route = createFileRoute("/")({
 function Landing() {
   return (
     <Shell>
+      {/* The opening sequence: the lockup and manifesto dissolve into the
+          homepage beneath — one continuous editorial arrival, once per load. */}
+      <OpeningSequence />
+      {/* The homepage emerges through the sequence — veiled, then sharpening. */}
+      <div className="home-emerge">
       {/* ── Hero Section ── */}
       <section className="relative mx-auto max-w-5xl px-5 pt-12 sm:pt-24">
         <div className="grid gap-16 sm:gap-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
@@ -138,6 +144,7 @@ function Landing() {
           </div>
         </div>
       </section>
+      </div>
     </Shell>
   );
 }
