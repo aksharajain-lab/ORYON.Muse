@@ -65,6 +65,14 @@
 
   --color-glass: var(--glass);
   --color-glass-border: var(--glass-border);
+
+  /* ── Share-card editorial text hierarchy ──
+     Three contrast tiers so the card reads as a refined publication:
+     card-primary (identity/title) > card-secondary (body/interpretation)
+     > card-meta (labels/metadata). */
+  --color-card-primary: var(--card-primary);
+  --color-card-secondary: var(--card-secondary);
+  --color-card-meta: var(--card-meta);
 }
 
 /* ════════════════════════════════════════════
@@ -119,6 +127,12 @@
 
   --glass: oklch(0.98 0.006 55 / 0.45);
   --glass-border: oklch(0.82 0.01 320 / 0.2);
+
+  /* Share-card editorial text tiers — Soft Muse:
+     deep charcoal / warm grey-brown / soft taupe */
+  --card-primary: #2b2724;
+  --card-secondary: #5c554d;
+  --card-meta: #8a8178;
 
   --shadow-luxe: 0 4px 24px -8px oklch(0.3 0.02 300 / 0.12), 0 1px 4px -1px oklch(0.3 0.02 300 / 0.06);
   --shadow-soft: 0 2px 12px -4px oklch(0.3 0.02 300 / 0.08);
@@ -183,6 +197,12 @@
   /* Warm, barely-there glass */
   --glass: oklch(0.17 0.016 45 / 0.5);
   --glass-border: oklch(0.72 0.06 80 / 0.08);
+
+  /* Share-card editorial text tiers — Dark Academia:
+     warm parchment / muted beige / dusty bronze-grey */
+  --card-primary: #f1e8d8;
+  --card-secondary: #b9aa96;
+  --card-meta: #817567;
 
   /* Soft, warm shadows — depth without gloss */
   --shadow-luxe: 0 4px 20px -6px oklch(0.07 0.012 45 / 0.5), 0 1px 3px oklch(0.07 0.012 45 / 0.4);

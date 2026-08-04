@@ -5,6 +5,27 @@ import { toPng } from "html-to-image";
 import { loadResult, setAnalysisUsed, type AestheticResult } from "@/lib/aesthetic";
 import { ArrowRight, Download, Share2, Compass } from "lucide-react";
 
+// Resolve any CSS color (hex, rgb, oklch, lab, …) to a plain #rrggbb string.
+// html-to-image passes `backgroundColor` straight to the canvas fill, which
+// older engines reject for oklch()/lab() values — silently leaving an opaque
+// black (or wrong-hue) backdrop behind the transparent areas of the card.
+function resolveColorToHex(color: string, fallback: string): string {
+  if (!color || color === "transparent" || color === "rgba(0, 0, 0, 0)") return fallback;
+  if (typeof CSS !== "undefined" && typeof CSS.supports === "function" && !CSS.supports("color", color)) {
+    return fallback;
+  }
+  try {
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (!ctx) return fallback;
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+  } catch {
+    return fallback;
+  }
+}
+
 export const Route = createFileRoute("/result")({
   head: () => ({
     meta: [
@@ -22,32 +43,81 @@ function ResultPage() {
   const [r, setR] = useState<AestheticResult | null>(null);
   const cardRef = useRef<HTMLElement | null>(null);
   const [capturing, setCapturing] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Export the share card as a PNG that matches the on-screen rendering exactly:
   // same background, colours, typography, palette circles, and layout. Fonts and
-  // the (data-URL) background image are fully loaded before capture, reveal
-  // animations are frozen via the .capture-ready class, and the 2x pixel ratio
-  // keeps the download crisp on retina displays.
+  // images are fully loaded and animations are frozen (.capture-ready) before
+  // capture, and the capture box is pinned to the measured card so the exported
+  // canvas is always the full A4 sheet — never a crop of it.
   const exportCard = async () => {
     if (!cardRef.current || capturing) return;
+    const card = cardRef.current;
     setCapturing(true);
+    // Freeze the reveal sequence synchronously (before any await) so both the
+    // dimension measurement and the library's clone see the settled card —
+    // never a mid-animation frame with elements at partial opacity/offset.
+    card.classList.add("capture-ready");
+    setExportError(null);
     try {
+      // 1 · Fonts fully loaded (Cormorant Garamond + Inter, including the
+      //     fallback swap) so the widths measured now match the final render.
       await document.fonts?.ready;
+      // 2 · Every image inside the card fully decoded. The background image
+      //     is a data URL, but decode() guarantees it is painted before capture.
+      await Promise.all(
+        Array.from(card.querySelectorAll("img")).map((img) =>
+          img.decode().catch(() => undefined),
+        ),
+      );
+      // 3 · Let layout settle with animations frozen: two frames for the
+      //     style flush, then a short beat before measuring.
       await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
-      const pageBg = getComputedStyle(document.body).backgroundColor || "#ffffff";
-      const dataUrl = await toPng(cardRef.current, {
+      await new Promise((res) => setTimeout(res, 60));
+
+      // Pin the capture to the exact on-screen card box. html-to-image's
+      // default path derives dimensions from the live node but lays the clone
+      // out inside a foreignObject, where aspect-ratio heights can drift and
+      // get clipped. Explicit width/height (+ canvasWidth/Height) force the
+      // clone's box to equal the measured card, so the export is the full A4
+      // sheet — never a crop.
+      const rect = card.getBoundingClientRect();
+      // Measure the true rendered bounds, then add a small capture margin so
+      // sub-pixel / aspect-ratio drift can never shave the bottom edge of the
+      // sheet. The margin shows the page background — invisible next to the
+      // card itself — and guarantees the full A4 sheet is exported.
+      const width = Math.max(1, Math.round(rect.width));
+      const height = Math.max(1, Math.ceil(rect.height) + 2);
+      const pageBg = resolveColorToHex(
+        getComputedStyle(document.body).backgroundColor,
+        document.documentElement.classList.contains("dark") ? "#171310" : "#f6f0e6",
+      );
+      const dataUrl = await toPng(card, {
+        width,
+        height,
+        canvasWidth: width,
+        canvasHeight: height,
         pixelRatio: 2,
         backgroundColor: pageBg,
         cacheBust: false,
+        // Pin the clone's box to the measured border-box size exactly: the
+        // card is border-box (Tailwind preflight), and getBoundingClientRect
+        // returns border-box dimensions — forcing the clone to the same box
+        // model removes any 1-2px height drift that shaves the bottom edge
+        // (invitation / footer text) during export in either theme.
+        style: { margin: "0", boxSizing: "border-box", width: `${width}px`, height: `${height}px` },
       });
       const a = document.createElement("a");
       a.download = `oryon-visual-identity-${(r?.identity ?? "reading").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
       a.href = dataUrl;
       a.click();
     } catch {
-      // Fall back to the browser's print-to-PDF if image capture is unavailable.
-      window.print();
+      // Surface the failure instead of silently handing off to print-to-PDF,
+      // which paginates the sheet and produces exactly the reported symptom:
+      // a cropped export with the bottom text cut off.
+      setExportError("The card couldn't be rendered to an image. Please try again.");
     } finally {
+      card.classList.remove("capture-ready");
       setCapturing(false);
     }
   };
@@ -116,10 +186,10 @@ function ResultPage() {
           <div className="relative flex min-h-[660px] flex-col px-7 pb-7 pt-8 sm:aspect-[210/297] sm:min-h-0 sm:px-9 sm:pb-8 sm:pt-9 print:aspect-auto print:min-h-0">
             {/* Masthead */}
             <div className="animate-fade-up flex items-baseline justify-between gap-4 border-b border-border/20 pb-4">
-              <p className="text-[10px] uppercase tracking-[0.5em] text-foreground/75">
+              <p className="text-[10px] uppercase tracking-[0.5em] text-card-primary">
                 ORYON <span className="text-muse font-light">Muse</span>
               </p>
-              <p className="text-[8px] uppercase tracking-[0.4em] text-muted-foreground">
+              <p className="text-[8px] uppercase tracking-[0.4em] text-card-meta">
                 {r.createdAt
                   ? new Date(r.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
                   : "Vol. 01 · Visual Identity"}
@@ -128,33 +198,33 @@ function ResultPage() {
 
             {/* Identity — the heart of the page */}
             <div className="flex flex-1 flex-col justify-center py-8 sm:py-9">
-              <p className="animate-fade-up text-[9px] uppercase tracking-[0.55em] text-muted-foreground">
+              <p className="animate-fade-up text-[9px] uppercase tracking-[0.55em] text-card-meta">
                 Your Visual Identity
               </p>
-              <h2 className="animate-fade-up delay-100 mt-4 text-serif text-[2.75rem] leading-[0.98] tracking-tight text-foreground sm:text-[2.9rem]">
+              <h2 className="animate-fade-up delay-100 mt-4 text-serif text-[2.75rem] leading-[0.98] tracking-tight text-card-primary sm:text-[2.9rem]">
                 {r.identity}
               </h2>
-              <p className="animate-fade-up delay-200 mt-2 text-serif text-lg italic text-foreground/70">
+              <p className="animate-fade-up delay-200 mt-2 text-serif text-lg italic text-card-secondary">
                 the {r.identity.split(" ").pop()?.toLowerCase() ?? r.identity}
               </p>
 
-              <p className="animate-fade-up delay-300 mt-5 text-[10px] uppercase tracking-[0.35em] text-foreground/75">
+              <p className="animate-fade-up delay-300 mt-5 text-[10px] uppercase tracking-[0.35em] text-card-secondary">
                 {r.traits.slice(0, 3).join("  ·  ")}
               </p>
 
               <div className="animate-draw-line relative my-5 h-px w-16 overflow-hidden bg-foreground/15" />
 
-              <p className="animate-fade-up delay-400 max-w-md text-serif text-lg leading-relaxed italic text-foreground/75 sm:text-xl">
+              <p className="animate-fade-up delay-400 max-w-md text-serif text-lg leading-relaxed italic text-card-secondary sm:text-xl">
                 "{r.tagline}"
               </p>
-              <p className="animate-fade-up delay-500 mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+              <p className="animate-fade-up delay-500 mt-3 max-w-md text-sm leading-relaxed text-card-secondary">
                 {supporting}
               </p>
             </div>
 
             {/* Palette — a balanced editorial plate */}
             <div className="animate-fade-up delay-600 flex flex-col items-center border-y border-border/15 py-6">
-              <p className="text-[8px] uppercase tracking-[0.45em] text-muted-foreground">Palette</p>
+              <p className="text-[8px] uppercase tracking-[0.45em] text-card-meta">Palette</p>
               <div className="mt-4 flex -space-x-3 sm:-space-x-3.5">
                 {r.palette.slice(0, 3).map((p, i) => (
                   <span
@@ -165,14 +235,14 @@ function ResultPage() {
                   />
                 ))}
               </div>
-              <p className="animate-fade-up delay-800 mt-3 text-[8px] uppercase tracking-[0.3em] text-muted-foreground/70">
+              <p className="animate-fade-up delay-800 mt-3 text-[8px] uppercase tracking-[0.3em] text-card-meta">
                 {r.palette.slice(0, 3).map((p) => p.name).join(" · ")}
               </p>
             </div>
 
             {/* Invitation + branding */}
             <div className="animate-fade-up delay-900 flex flex-col items-center gap-2.5 pt-6">
-              <p className="text-serif text-lg italic text-foreground/60 sm:text-xl">
+              <p className="text-serif text-lg italic text-card-secondary sm:text-xl">
                 Discover your own visual identity.
               </p>
               <div className="flex items-center gap-3">
@@ -180,7 +250,7 @@ function ResultPage() {
                 <span className="h-1 w-1 rotate-45 border border-border/40" />
                 <span className="h-px w-8 bg-border/30" />
               </div>
-              <p className="animate-fade-up delay-1000 text-[8px] uppercase tracking-[0.45em] text-muted-foreground">
+              <p className="animate-fade-up delay-1000 text-[8px] uppercase tracking-[0.45em] text-card-meta">
                 Interpreted by ORYON Muse
               </p>
             </div>
@@ -235,6 +305,10 @@ function ResultPage() {
             Try another image
           </Link>
         </div>
+
+        {exportError && (
+          <p className="mx-auto mt-3 max-w-md text-center text-xs text-muted-foreground">{exportError}</p>
+        )}
 
       </section>
     </Shell>

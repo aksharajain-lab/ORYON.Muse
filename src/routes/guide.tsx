@@ -13,6 +13,7 @@ import {
   incrementGuideAnalysisMessages,
   getGuideDirectMessages,
   incrementGuideDirectMessages,
+  resetGuideCounters,
   ANALYSIS_FOLLOWUP_LIMIT,
   DIRECT_CHAT_LIMIT,
   studyReply,
@@ -88,6 +89,11 @@ function GuidePage() {
     const v = loadResult();
     const evo = loadEvolution();
     const isAnalysis = !!v;
+    // A dialogue is a fresh conversation every time it's entered — the
+    // previous session's exhausted count must never show the end message
+    // before the user has sent anything. (Study-mode counters reset through
+    // clearStudy() the moment a new study begins.)
+    if (!isAnalysis) resetGuideCounters();
     const savedCount = isAnalysis ? getGuideAnalysisMessages() : getGuideDirectMessages();
     setMsgCount(savedCount);
     if (savedCount >= (isAnalysis ? ANALYSIS_FOLLOWUP_LIMIT : DIRECT_CHAT_LIMIT)) {

@@ -268,12 +268,23 @@ export function clearResult() {
   try { sessionStorage.removeItem(SESSION_IMAGES_KEY); } catch {}
 }
 
+/** A fresh conversation always starts from zero. The guide message counters
+ *  are conversation-scoped — a previous session's exhausted count must never
+ *  leak into a new study or a new dialogue and surface the end-of-conversation
+ *  message before the user has sent anything. */
+export function resetGuideCounters() {
+  try { localStorage.removeItem(GUIDE_ANALYSIS_MSGS_KEY); } catch {}
+  try { localStorage.removeItem(GUIDE_DIRECT_MSGS_KEY); } catch {}
+}
+
 /** Wipe all persisted state belonging to a previous study. Called the moment
  *  a new study begins, so every reading is fully independent. */
 export function clearStudy() {
   clearResult();
   memoryCategories = null;
   memoryNote = null;
+  // Each new study is a new conversation — its follow-up allowance starts fresh.
+  resetGuideCounters();
   try { localStorage.removeItem(EVO_KEY); } catch {}
   try { localStorage.removeItem(ANALYSIS_USED_KEY); } catch {}
   try { sessionStorage.removeItem(SESSION_CATEGORIES_KEY); } catch {}

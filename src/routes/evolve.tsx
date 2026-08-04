@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shell } from "@/components/Shell";
 import { useEffect, useState } from "react";
-import { Check, Compass, PenLine } from "lucide-react";
+import { ArrowRight, Check, Compass, PenLine } from "lucide-react";
 import {
   EVOLVE_DIRECTIONS,
   saveEvolution,
@@ -172,6 +172,34 @@ function EvolvePage() {
           </Link>
         </div>
       </section>
+
+      {/* The final stage of the study — the handoff into the Muse Studio.
+          Step 04 arrives as a continuation of the reading, not a chat prompt:
+          the chosen directions (and the reading itself) walk in with you. */}
+      <div className="fixed inset-x-0 bottom-0 z-20">
+        <div className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background to-transparent" />
+        <div className="relative border-t border-border/30 bg-background/80 backdrop-blur-lg">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.35em] text-muted-foreground">
+                Step 04 · The Studio
+              </p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-muted-foreground/70">
+                {selected.length === 0
+                  ? "Your reading continues as it stands"
+                  : `${selected.length} world${selected.length !== 1 ? "s" : ""} will join your reading`}
+              </p>
+            </div>
+            <Link
+              to="/guide"
+              className="group inline-flex flex-none touch-manipulation items-center gap-2.5 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background shadow-luxe transition duration-300 hover:bg-foreground/90 active:scale-[0.98]"
+            >
+              Enter the Muse Studio
+              <ArrowRight className="h-4 w-4 transition duration-300 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
     </Shell>
   );
 }
