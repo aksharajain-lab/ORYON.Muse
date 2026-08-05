@@ -16,7 +16,7 @@ export type AnalyzeInput = {
   otherNote?: string;
 };
 
-const MODEL = process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
+const MODEL = process.env.OPENROUTER_MODEL ?? "openrouter/free";
 const API_KEY = process.env.OPENROUTER_API_KEY;
 
 // TEMP DEBUG — key presence only (true/false), never the value. Remove after
