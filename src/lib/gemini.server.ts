@@ -1,12 +1,12 @@
-// ── ORYON Muse · AI Analysis (via AIMLAPI) ─────────────────────────────
+// ── ORYON Muse · AI Analysis (via OpenRouter) ───────────────────────────
 // Server-only module. The `.server` suffix keeps it out of the browser
 // bundle; the API key is read from process.env and never reaches the client.
 //
 // The client sends the (already downscaled) images plus their study context
 // (categories + optional note). We forward them to the model through
-// AIMLAPI's OpenAI-compatible endpoint, enforce JSON output, validate the
-// result, and return a reading that matches the existing AestheticResult
-// shape — so no UI change is needed.
+// OpenRouter's OpenAI-compatible chat completions endpoint, enforce JSON
+// output, validate the result, and return a reading that matches the existing
+// AestheticResult shape — so no UI change is needed.
 
 import type { AestheticResult } from "./aesthetic";
 
@@ -16,14 +16,14 @@ export type AnalyzeInput = {
   otherNote?: string;
 };
 
-const MODEL = process.env.AIMLAPI_MODEL ?? "google/gemini-3.6-flash";
-const API_KEY = process.env.AIMLAPI_API_KEY;
+const MODEL = process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
+const API_KEY = process.env.OPENROUTER_API_KEY;
 
 // TEMP DEBUG — key presence only (true/false), never the value. Remove after
 // verifying the key is loaded in the target environment.
-console.info(`[muse] AIMLAPI_API_KEY present: ${Boolean(API_KEY)}`);
+console.info(`[muse] OPENROUTER_API_KEY present: ${Boolean(API_KEY)}`);
 
-const ENDPOINT = "https://api.aimlapi.com/v1/chat/completions";
+const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const MAX_TOKENS = 1600;
 
 /* ── The ORYON voice ──────────────────────────────────────────────────── */
@@ -78,7 +78,7 @@ const FALLBACK_SUGGESTIONS = [
 
 export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<AestheticResult> {
   if (!API_KEY) {
-    throw new Error("AIMLAPI_API_KEY is not configured on the server.");
+    throw new Error("OPENROUTER_API_KEY is not configured on the server.");
   }
 
   const body = {
@@ -95,17 +95,23 @@ export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<Aesthe
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      // TEMP DEBUG — logs only when the AIMLAPI request starts (no key, no body).
-      console.info(`[muse] AIMLAPI request starting (attempt ${attempt + 1}/2)`);
+      // TEMP DEBUG — logs only when the OpenRouter request starts (no key, no body).
+      console.info(`[muse] OpenRouter request starting (attempt ${attempt + 1}/2)`);
       const res = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+          // Optional OpenRouter identification headers (never secrets).
+          "HTTP-Referer": "https://oryonmuse.com",
+          "X-Title": "ORYON Muse",
+        },
         body: JSON.stringify(body),
         signal: AbortSignal.timeout(45_000),
       });
 
-      // TEMP DEBUG — logs only the HTTP status code from AIMLAPI.
-      console.info(`[muse] AIMLAPI responded: HTTP ${res.status}`);
+      // TEMP DEBUG — logs only the HTTP status code from OpenRouter.
+      console.info(`[muse] OpenRouter responded: HTTP ${res.status}`);
 
       if (!res.ok) {
         const detail = await res.text().catch(() => "");
@@ -113,7 +119,7 @@ export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<Aesthe
           await sleep(1500);
           continue;
         }
-        throw new Error(`AIMLAPI ${res.status}: ${detail.slice(0, 240)}`);
+        throw new Error(`OpenRouter ${res.status}: ${detail.slice(0, 240)}`);
       }
 
       const data = (await res.json()) as ChatCompletionResponse;
@@ -125,7 +131,7 @@ export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<Aesthe
     } catch (err) {
       lastError = err;
       // TEMP DEBUG — logs only the exact error message (never keys/secrets).
-      console.error(`[muse] AIMLAPI request failed: ${err instanceof Error ? err.message : String(err)}`);
+      console.error(`[muse] OpenRouter request failed: ${err instanceof Error ? err.message : String(err)}`);
       if (attempt === 0 && isRetryableError(err)) {
         await sleep(1500);
         continue;
@@ -238,7 +244,7 @@ function isRetryableError(err: unknown): boolean {
   return /fetch failed|ECONNRESET|ETIMEDOUT|ENOTFOUND/i.test(msg);
 }
 
-/* ── AIMLAPI response type ────────────────────────────────────────────── */
+/* ── OpenRouter response type ─────────────────────────────────────────── */
 
 type ChatCompletionResponse = {
   choices?: Array<{ message?: { content?: string } }>;
