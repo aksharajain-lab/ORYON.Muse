@@ -19,6 +19,10 @@ export type AnalyzeInput = {
 const MODEL = process.env.AIMLAPI_MODEL ?? "google/gemini-3.6-flash";
 const API_KEY = process.env.AIMLAPI_API_KEY;
 
+// TEMP DEBUG — key presence only (true/false), never the value. Remove after
+// verifying the key is loaded in the target environment.
+console.info(`[muse] AIMLAPI_API_KEY present: ${Boolean(API_KEY)}`);
+
 const ENDPOINT = "https://api.aimlapi.com/v1/chat/completions";
 const MAX_TOKENS = 1600;
 
@@ -91,12 +95,17 @@ export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<Aesthe
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
+      // TEMP DEBUG — logs only when the AIMLAPI request starts (no key, no body).
+      console.info(`[muse] AIMLAPI request starting (attempt ${attempt + 1}/2)`);
       const res = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}` },
         body: JSON.stringify(body),
         signal: AbortSignal.timeout(45_000),
       });
+
+      // TEMP DEBUG — logs only the HTTP status code from AIMLAPI.
+      console.info(`[muse] AIMLAPI responded: HTTP ${res.status}`);
 
       if (!res.ok) {
         const detail = await res.text().catch(() => "");
@@ -115,6 +124,8 @@ export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<Aesthe
       return validateResult(raw);
     } catch (err) {
       lastError = err;
+      // TEMP DEBUG — logs only the exact error message (never keys/secrets).
+      console.error(`[muse] AIMLAPI request failed: ${err instanceof Error ? err.message : String(err)}`);
       if (attempt === 0 && isRetryableError(err)) {
         await sleep(1500);
         continue;

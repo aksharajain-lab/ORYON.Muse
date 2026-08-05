@@ -15,6 +15,8 @@ export const Route = createFileRoute("/api/analyze")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // TEMP DEBUG — logs only when a request reaches /api/analyze.
+        console.info("[api/analyze] POST /api/analyze request received");
         try {
           const body = (await request.json()) as Partial<AnalyzeInput>;
 
@@ -43,7 +45,8 @@ export const Route = createFileRoute("/api/analyze")({
 
           return Response.json({ ok: true, result });
         } catch (err) {
-          console.error("[api/analyze]", err);
+          // TEMP DEBUG — logs only the exact exception message (never keys/secrets).
+          console.error(`[api/analyze] exception: ${err instanceof Error ? err.message : String(err)}`);
           return Response.json(
             { ok: false, error: err instanceof Error ? err.message : "The reading could not be completed." },
             { status: 500 },
