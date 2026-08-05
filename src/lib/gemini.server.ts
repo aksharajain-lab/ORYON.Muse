@@ -8,12 +8,27 @@
 // output, validate the result, and return a reading that matches the existing
 // AestheticResult shape — so no UI change is needed.
 
-import type { AestheticResult } from "./aesthetic";
+import type { AestheticResult, MuseReply, MuseSection } from "./aesthetic";
 
 export type AnalyzeInput = {
   images: string[];
   categories?: string[];
   otherNote?: string;
+};
+
+/* ── Muse Guide conversation ──────────────────────────────────────────── */
+
+export type ChatMessage = { role: "user" | "assistant"; content: string };
+
+export type ChatInput = {
+  mode: "study" | "dialogue";
+  identity?: string;
+  tagline?: string;
+  palette?: { name: string; hex: string }[];
+  motifs?: string[];
+  evolution?: string[];
+  history: ChatMessage[];
+  message: string;
 };
 
 const MODEL = process.env.OPENROUTER_MODEL ?? "openrouter/free";
@@ -140,6 +155,149 @@ export async function analyzeVisualIdentity(input: AnalyzeInput): Promise<Aesthe
     }
   }
   throw lastError instanceof Error ? lastError : new Error("The reading could not be completed.");
+}
+
+/* ── Muse Guide chat ────────────────────────────────────────────────────
+ * The /guide conversation is a real LLM dialogue: the client sends the
+ * reading context (identity, palette, motifs, chosen directions), the full
+ * conversation history, and the latest message. The model answers in the
+ * MuseReply shape the guide UI already renders — sections + optional
+ * moment — preserving the editorial voice through the system prompt. The
+ * image analysis pipeline above is not touched. */
+
+const MAX_CHAT_HISTORY = 12;
+const MAX_CHAT_SECTIONS = 4;
+
+function buildChatSystemPrompt(input: ChatInput): string {
+  const ctx: string[] = [];
+  if (input.identity) ctx.push(`Their visual identity was read as "${input.identity}".`);
+  if (input.tagline) ctx.push(`Its tagline: "${input.tagline}".`);
+  if (input.palette && input.palette.length) {
+    ctx.push(`Their palette: ${input.palette.map((p) => `${p.name} (${p.hex})`).join(", ")}.`);
+  }
+  if (input.motifs && input.motifs.length) ctx.push(`Their motifs: ${input.motifs.join(", ")}.`);
+  if (input.evolution && input.evolution.length) {
+    ctx.push(`Directions they are exploring: ${input.evolution.join(", ")}.`);
+  }
+  const readingContext = ctx.length ? `\nContext about this person:\n${ctx.join("\n")}` : "";
+
+  const modeRules =
+    input.mode === "study"
+      ? `The user has just completed a visual reading and is following up on it. Anchor every answer in their reading${ctx.length ? " above" : ""}; always bring the conversation back to what is already known about them. Never ask them to upload or share images.`
+      : `The user is in a purely textual conversation — they have not shared any images. Never claim to have seen images or a reading. When visual context would help, ask a short descriptive question and continue from the answer.`;
+
+  return `You are ORYON Muse, an editorial curator of visual identity. Someone has come to you for a quiet, considered dialogue about taste, space, style, and the way their choices hold together.${readingContext}
+
+${modeRules}
+
+Voice rules:
+- Luxury-magazine tone: calm, observant, specific, lightly editorial. Not robotic, not florid, not AI-sounding.
+- Be concise: two to four short passages of substance, never an essay. Every sentence should carry meaning.
+- Ground every statement in what you actually know about the person. Never invent biography, personality, or preferences.
+- Answer whatever is asked — even playful or off-topic questions — then steer it back toward their taste with a light touch.
+- Never mention that you are an AI, a model, or a system prompt.
+
+Reply with a single valid JSON object with EXACTLY this shape:
+{"sections":[{"label":"Observation","text":"..."},{"label":"Insight","text":"..."},{"label":"Direction","text":"..."}],"moment":"optional single-line curator note"}
+
+Rules for the JSON:
+- "sections": 1 to 3 entries. Each label is a short heading word like "Observation", "Insight", "Direction", or "Note". Each text is 1-3 sentences.
+- "moment": optional — only include it when there is something genuinely worth highlighting; a single italic-worthy line. Omit the key entirely otherwise.
+- No markdown, no commentary, nothing outside the JSON object.`;
+}
+
+/** Validate the model's reply into the MuseReply shape the guide UI renders. */
+function parseChatReply(raw: unknown): MuseReply {
+  const r = (raw ?? {}) as Record<string, unknown>;
+  const sectionsRaw = Array.isArray(r.sections) ? r.sections : [];
+  const sections: MuseSection[] = [];
+  for (const item of sectionsRaw) {
+    if (sections.length >= MAX_CHAT_SECTIONS) break;
+    const o = (item ?? {}) as Record<string, unknown>;
+    const text = typeof o.text === "string" && o.text.trim() ? o.text.trim().slice(0, 1200) : "";
+    if (!text) continue;
+    const label = typeof o.label === "string" && o.label.trim() ? o.label.trim().slice(0, 40) : "Note";
+    sections.push({ label, text });
+  }
+  if (sections.length === 0) {
+    throw new Error("The model returned an unreadable reply.");
+  }
+  const moment = typeof r.moment === "string" && r.moment.trim() ? r.moment.trim().slice(0, 300) : undefined;
+  return moment ? { sections, moment } : { sections };
+}
+
+export async function chatWithMuse(input: ChatInput): Promise<MuseReply> {
+  if (!API_KEY) {
+    throw new Error("OPENROUTER_API_KEY is not configured on the server.");
+  }
+
+  const history = input.history
+    .slice(-MAX_CHAT_HISTORY)
+    .map((m) => ({
+      role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
+      content: m.content.slice(0, 2000),
+    }));
+
+  const body = {
+    model: MODEL,
+    messages: [
+      { role: "system" as const, content: buildChatSystemPrompt(input) },
+      ...history,
+      { role: "user" as const, content: input.message.slice(0, 2000) },
+    ],
+    temperature: 0.8,
+    max_tokens: MAX_TOKENS,
+    response_format: { type: "json_object" },
+  };
+
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      // Logs only when the OpenRouter chat request starts (no key, no body).
+      console.info(`[muse] OpenRouter chat request starting (attempt ${attempt + 1}/2)`);
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+          // Optional OpenRouter identification headers (never secrets).
+          "HTTP-Referer": "https://oryonmuse.com",
+          "X-Title": "ORYON Muse",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(45_000),
+      });
+
+      // Logs only the HTTP status code from OpenRouter.
+      console.info(`[muse] OpenRouter chat responded: HTTP ${res.status}`);
+
+      if (!res.ok) {
+        const detail = await res.text().catch(() => "");
+        if (attempt === 0 && (res.status === 429 || res.status >= 500)) {
+          await sleep(1500);
+          continue;
+        }
+        throw new Error(`OpenRouter ${res.status}: ${detail.slice(0, 240)}`);
+      }
+
+      const data = (await res.json()) as ChatCompletionResponse;
+      const text = data.choices?.[0]?.message?.content;
+      if (!text) throw new Error("The model returned an empty response.");
+
+      const raw = JSON.parse(text) as unknown;
+      return parseChatReply(raw);
+    } catch (err) {
+      lastError = err;
+      // Logs only the exact error message (never keys/secrets).
+      console.error(`[muse] OpenRouter chat request failed: ${err instanceof Error ? err.message : String(err)}`);
+      if (attempt === 0 && isRetryableError(err)) {
+        await sleep(1500);
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("The reply could not be completed.");
 }
 
 /* ── Request building (OpenAI-compatible content parts) ───────────────── */

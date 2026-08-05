@@ -16,8 +16,6 @@ import {
   resetGuideCounters,
   ANALYSIS_FOLLOWUP_LIMIT,
   DIRECT_CHAT_LIMIT,
-  studyReply,
-  dialogueReply,
   STUDY_PROMPTS,
   DIALOGUE_PROMPTS,
   type AestheticResult,
@@ -134,9 +132,9 @@ function GuidePage() {
   const limitMsg = isAnalysis ? ANALYSIS_LIMIT_MSG : DIRECT_LIMIT_MSG;
   const prompts = isAnalysis ? STUDY_PROMPTS : DIALOGUE_PROMPTS;
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     const t = text.trim();
-    if (!t || limitReached) return;
+    if (!t || limitReached || typing) return;
 
     const newCount = isAnalysis
       ? incrementGuideAnalysisMessages()
@@ -149,21 +147,66 @@ function GuidePage() {
     setMsgs((m) => [...m, { id: crypto.randomUUID(), role: "you", text: t }]);
     setInput("");
     setTyping(true);
-    setTimeout(() => {
-      const context = msgs.filter((m) => m.role === "you").map((m) => m.text ?? "");
-      const evo = loadEvolution();
-      const custom = loadEvolutionCustom();
-      const cats = loadCategories();
-      const answer = r
-        ? studyReply(t, r, evo, custom, cats, [...context, t])
-        : dialogueReply(t, evo, custom, cats, [...context, t]);
-      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", reply: answer }];
+
+    // Full conversation so far (greeting, prior exchanges, this message) plus
+    // the reading context the guide should stay anchored to.
+    const history = msgs.map((m) => ({
+      role: m.role === "you" ? ("user" as const) : ("assistant" as const),
+      content:
+        m.role === "you"
+          ? (m.text ?? "")
+          : m.reply
+            ? m.reply.sections.map((s) => `${s.label}: ${s.text}`).join("\n") +
+              (m.reply.moment ? `\n— ${m.reply.moment}` : "")
+            : (m.text ?? ""),
+    }));
+
+    const evo = loadEvolution();
+    const custom = loadEvolutionCustom();
+    const evoNames = [
+      ...evo
+        .map((id) => EVOLVE_DIRECTIONS.find((d) => d.id === id))
+        .filter(Boolean)
+        .map((d) => d!.name),
+      ...custom,
+    ];
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: isAnalysis ? "study" : "dialogue",
+          identity: r?.identity,
+          tagline: r?.tagline,
+          palette: r?.palette ?? [],
+          motifs: r?.traits ?? [],
+          evolution: evoNames,
+          history,
+          message: t,
+        }),
+      });
+      const data = (await res.json()) as { ok?: boolean; reply?: MuseReply; error?: string };
+      if (!res.ok || !data.ok || !data.reply) {
+        throw new Error(data?.error ?? "The guide is unavailable right now.");
+      }
+      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", reply: data.reply }];
       if (newCount >= maxMsgs) {
         nextMsgs.push({ id: "limit", role: "muse", text: limitMsg });
       }
       setMsgs((m) => [...m, ...nextMsgs]);
+    } catch {
+      const fallback: MuseReply = {
+        sections: [{ label: "Note", text: "I lost the thread for a moment — say that again, I'm listening." }],
+      };
+      const nextMsgs: Msg[] = [{ id: crypto.randomUUID(), role: "muse", reply: fallback }];
+      if (newCount >= maxMsgs) {
+        nextMsgs.push({ id: "limit", role: "muse", text: limitMsg });
+      }
+      setMsgs((m) => [...m, ...nextMsgs]);
+    } finally {
       setTyping(false);
-    }, 1200 + Math.random() * 800);
+    }
   };
 
   return (
