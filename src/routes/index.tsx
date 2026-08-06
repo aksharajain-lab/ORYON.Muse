@@ -31,13 +31,13 @@ function Landing() {
       <section className="relative mx-auto max-w-5xl px-5 pt-12 sm:pt-24">
         <div className="grid gap-16 sm:gap-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border/40 px-3 py-1 text-[9px] uppercase tracking-[0.35em] text-muted-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/40 px-3 py-1 text-[9px] uppercase tracking-[0.35em] text-muted-foreground max-sm:border-border/30 max-sm:text-muted-foreground/75">
               <span className="h-1 w-1 rounded-full bg-primary/70" /> Aesthetic Intelligence
             </span>
-            <h1 className="mt-6 text-serif text-[2.75rem] leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-[4.5rem]">
-              Discover the aesthetic <em className="font-light italic text-foreground/75">you already have.</em>
+            <h1 className="mt-6 text-serif text-[2.75rem] leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-[4.5rem] max-sm:text-[3rem]">
+              Discover the aesthetic <em className="font-light italic text-foreground/75 max-sm:text-foreground/85">you already have.</em>
             </h1>
-            <p className="mt-6 max-w-xl text-[0.95rem] leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-6 max-w-xl text-[0.95rem] leading-relaxed text-muted-foreground sm:text-lg max-sm:mt-4 max-sm:text-[0.85rem] max-sm:text-muted-foreground/80">
               Your taste already has a language. ORYON Muse interprets it. Share your style, spaces, and inspirations
               to uncover your visual identity and evolve it with intention.
             </p>

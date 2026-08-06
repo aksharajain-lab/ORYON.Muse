@@ -92,7 +92,7 @@ function BeginPage() {
                 onClick={() => toggle(c.id)}
                 aria-pressed={active}
                 disabled={locked}
-                className={`group relative rounded-xl border p-4 text-left transition-all duration-300 ease-out ${
+                className={`group relative rounded-xl border p-4 text-left transition-all duration-300 ease-out max-sm:p-3.5 ${
                   active
                     ? "border-foreground/30 bg-foreground/[0.03] -translate-y-0.5"
                     : locked
@@ -101,7 +101,7 @@ function BeginPage() {
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className={`grid h-9 w-9 place-items-center rounded-full border text-foreground/60 transition-all duration-300 ${
+                  <span className={`grid h-9 w-9 place-items-center rounded-full border text-foreground/60 transition-all duration-300 max-sm:h-8 max-sm:w-8 ${
                     active ? "border-foreground/30 bg-foreground/5" : "border-border/40"
                   }`}>
                     <Icon className="h-4 w-4" />
@@ -117,8 +117,8 @@ function BeginPage() {
                     <Check className="h-2.5 w-2.5" />
                   </span>
                 </div>
-                <p className="mt-4 text-serif text-xl leading-none sm:text-2xl">{c.label}</p>
-                <p className="mt-1.5 text-[11px] text-muted-foreground">{c.hint}</p>
+                <p className="mt-4 text-serif text-xl leading-none sm:text-2xl max-sm:mt-3 max-sm:text-[1.375rem]">{c.label}</p>
+                <p className="mt-1.5 text-[11px] text-muted-foreground max-sm:mt-1 max-sm:text-[10px] max-sm:text-muted-foreground/80">{c.hint}</p>
               </button>
             );
           })}
