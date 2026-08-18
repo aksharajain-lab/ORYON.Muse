@@ -104,7 +104,7 @@ npm run build
 npm run build:dev
 
 # Preview production build locally
-npm preview
+npm run preview
 
 # Lint and format code
 npm run lint
